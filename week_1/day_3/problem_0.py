@@ -1,4 +1,5 @@
 import re
+
 ru2eng = {
     "а": "a",
     "б": "b",
