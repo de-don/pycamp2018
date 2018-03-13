@@ -20,7 +20,6 @@ def merge_dicts(d1, d2):
     for key, value in d2.items():
         if d3.get(key, None):
             logger.warning('Key "%s" exists in both dicts. Value "%s" from d2 can be lost' % (key, value))
-            pass
         else:
             d3.update({key: value})
 
