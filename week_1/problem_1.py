@@ -1,18 +1,23 @@
 from collections import Counter
+from typing import List
 
 
-def gen_item(item, count):
-    """ Create dict for item with its frequency """
+def sum_of_keys(list_of_dicts: List[dict]) -> List[dict]:
+    """ Function to calc and return count keys in dicts with equal values
 
-    return {"key": item[0], "value": item[1], "count": count}
+    Args:
+        list_of_dicts(List[dict]): list with some dicts
 
+    Returns:
+        List[dict]: list with dicts, when each dict have this structure:
+            {'key': key_name, 'value': key_value, 'count': count_items}
 
-def sum_of_keys(list_of_dicts):
-    """ Function to calculate and return count keys in dicts with equal values """
+    """
 
     counter = Counter()
     # add to counter items from each dict
     for one_dict in list_of_dicts:
         counter.update(one_dict.items())
 
-    return [gen_item(item, count) for item, count in counter.items()]
+    for item, count in counter.items():
+        yield {'key': item[0], 'value': item[1], 'count': count}
