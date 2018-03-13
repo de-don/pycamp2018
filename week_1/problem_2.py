@@ -13,11 +13,15 @@ def merge_dicts(d1, d2):
         {"a": 1, "b": 2, "c": 4}
     """
 
-    logging.basicConfig(level=logging.WARNING, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    logging.basicConfig(
+        level=logging.WARNING,
+        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+    )
     logger = logging.getLogger('merge_dicts')
 
     for key, value in d2.items():
         if d1.get(key, None):
-            logger.warning(f'Key "{key}" exists in both dicts. Value "{value}" from d2 can be lost')
+            logger.warning(f'Key "{key}" exists in both dicts. Value "{value}"'
+                           f' from d2 can be lost')
 
     return {**d2, **d1}
