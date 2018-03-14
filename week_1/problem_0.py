@@ -61,26 +61,24 @@ def transliteration(string, direction='rus2eng'):
     position = 0
     out_string = []
     while position < len(string):
-
         # check all substrings from longest to shortest
         for substring_len in range(max_replace_len, 0, -1):
-            substring = string[position:position + substring_len].lower()
+            substring = string[position:position + substring_len]
+            replace = diction.get(substring.lower(), None)
 
-            # if substring found in dictionary, remember it and break loop
-            if substring in diction:
+            # if replace is found, remember it and break loop
+            if replace:
+                # if current symbol is upper, capitalized all replace
+                if substring.istitle():
+                    replace = replace.title()
+
+                position += substring_len
                 break
         else:
-            # if substring not found, set current symbol without changes
-            substring = string[position]
-
-        # get replace
-        replace = diction.get(substring, substring)
-
-        # if current symbol is upper, capitalized all replace
-        if string[position].isupper():
-            replace = replace.capitalize()
+            # if replace not found, set symbol without changes
+            replace = string[position]
+            position += 1
 
         out_string.append(replace)
-        position += len(substring)
 
     return ''.join(out_string)
