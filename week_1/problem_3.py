@@ -8,9 +8,7 @@ class Matrix:
     width = 5
 
     def __init__(self, *args):
-        rows = []
-        for row in args:
-            rows.append(array('f', row))
+        rows = [array('f', row) for row in args]
 
         self.n = len(rows)
         self.m = max(map(len, rows), default=0)
@@ -79,6 +77,5 @@ class Matrix:
 
 if __name__ == "__main__":
     m = Matrix((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12))
-
 
     print(m[1:1])
