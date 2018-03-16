@@ -60,7 +60,7 @@ class Matrix:
         lines = []
         for row in self.rows:
             lines.append(''.join(f'{i:<{self.width}}' for i in row))
-        return '\n'.join(lines)
+        return '\n'.join(map(str.strip, lines))
 
     def __getitem__(self, item):
         h, v = split_2d_slice(item)
