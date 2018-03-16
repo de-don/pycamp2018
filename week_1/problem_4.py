@@ -66,3 +66,31 @@ class Set:
         for other in args:
             s = s | other
         return s
+
+    def __and__(self, other):
+        items = []
+        for item in self:
+            if item in other:
+                items.append(item)
+
+        return Set(items)
+
+    def intersection(self, *args):
+        s = self
+        for other in args:
+            s = s & other
+        return s
+
+    def __sub__(self, other):
+        items = []
+        for item in self:
+            if item not in other:
+                items.append(item)
+
+        return Set(items)
+
+    def difference(self, *args):
+        s = self
+        for other in args:
+            s = s - other
+        return s

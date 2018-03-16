@@ -50,16 +50,34 @@ class TestSet(TestCase):
         self.assertFalse(s2 <= s1)
         self.assertFalse(s1.issuperset(s2))
 
-    def test_operations(self):
+    def test_operations_union(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 4, 5))
         s3 = Set([7, 9])
 
-        self.assertIterEqual(s1 | s2, Set((1, 2, 3, 4, 5)))
         self.assertIterEqual(s1.union(s2), Set((1, 2, 3, 4, 5)))
-
-        self.assertIterEqual(s1 | s2 | s3, Set((1, 2, 3, 4, 5, 7, 9)))
         self.assertIterEqual(s1.union(s2, s3), Set((1, 2, 3, 4, 5, 7, 9)))
+
+    def test_operations_isdisjoint(self):
+        s1 = Set((1, 2, 3))
+        s2 = Set((3, 4, 5))
+        s3 = Set([7, 9])
 
         self.assertTrue(s1.isdisjoint(s3))
         self.assertFalse(s1.isdisjoint(s2))
+
+    def test_operations_intersection(self):
+        s1 = Set((1, 2, 3))
+        s2 = Set((3, 2, 5))
+        s3 = Set([7, 9])
+
+        self.assertIterEqual(s1.intersection(s2), Set((2, 3)))
+        self.assertIterEqual(s1.intersection(s2, s3), Set())
+
+    def test_operations_difference(self):
+        s1 = Set((1, 2, 3))
+        s2 = Set((3, 5))
+        s3 = Set([1])
+
+        self.assertIterEqual(s1.difference(s2), Set((1, 2)))
+        self.assertIterEqual(s1.difference(s2, s3), Set((2,)))
