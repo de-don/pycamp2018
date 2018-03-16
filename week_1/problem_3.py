@@ -4,31 +4,55 @@ from numbers import Integral, Real
 
 
 class DimensionError(ValueError):
+    """ Error raiser when dimensions two items not equal """
     pass
 
 
 def split_2d_slice(item):
+    """ Function to split 2d slice
+
+    Args:
+        item(Tuple[slice]): pair of slice or int.
+
+    Returns:
+        slice: first slice or None
+        slice: second slice or None
+
+    """
     if isinstance(item, tuple):
         if len(item) == 1:
             return item[0], None
         elif len(item) == 2:
             return item
         else:
-            raise TypeError("Slice must be int, slice, or tuple of them")
+            raise TypeError('Slice must be int, slice, or tuple of them')
     else:
         if isinstance(item, slice) or isinstance(item, Integral):
             return item, None
         else:
-            raise TypeError("Slice must be int, slice, or tuple of them")
+            raise TypeError('Slice must be int, slice, or tuple of them')
 
 
 class Matrix:
+    """ Matrix class. Support many matrix-operations
+    """
     rows = None
-    n, m = 0, 0  # count rows and cols
-    width = 5
-    precision = 1
+    n, m = 0, 0    # count rows and cols
+    precision = 1  # precision for output
 
     def __init__(self, *args, precision=1):
+        """ Init function which create matrix from args.
+
+        Args:
+            *args(Iterable): iter of iterable objects, every object must
+                be number (float or int)
+            precision(int): precision for printing.
+
+        Returns:
+            NoneType: return nothing
+
+        """
+
         self.precision = precision
         rows = [array('f', row) for row in args]
 
@@ -43,28 +67,56 @@ class Matrix:
 
     @property
     def size(self):
+        """ Property which return size or matrix """
         return self.n, self.m
 
     @property
     def T(self):
+        """ Property for create transpose matrix and return it
+
+        Return:
+            Matrix: transposed matrix
+        """
+
         tmp = [[self.rows[j][i] for j in self.range_n] for i in self.range_m]
         return Matrix(*tmp)
 
     @property
     def range_n(self):
+        """ Equal to range(self.n) """
         return range(self.n)
 
     @property
     def range_m(self):
+        """ Equal to range(self.m) """
         return range(self.m)
 
     @classmethod
     def zeros(cls, n, m):
+        """ Create new Matrix n*m which contain from zeros
+
+        Args:
+            n(int): count rows
+            m(int): count cols
+
+        Returns:
+            Matrix: matrix n*m from zeros
+        """
+
         rows = [(0 for _ in range(m)) for _ in range(n)]
         return cls(*rows)
 
     @classmethod
     def ones(cls, n):
+        """ Create new diag Matrix n*n with 1 by diag and 0 whatever else.
+
+        Args:
+            n(int): count rows and cols
+
+        Returns:
+            Matrix: E-matrix n*m
+        """
+
         rows = [[i == j for j in range(n)] for i in range(n)]
         return cls(*rows)
 
@@ -135,7 +187,6 @@ class Matrix:
         else:
             raise TypeError
 
-        ()
 
     ##################################################
     # Add methods
@@ -150,6 +201,7 @@ class Matrix:
         return self + other
 
     def __iadd__(self, other):
+        """ Add matrix with equal sizes """
         if isinstance(other, Matrix):
             if self.size != other.size:
                 raise DimensionError
@@ -157,16 +209,17 @@ class Matrix:
             for i in self.range_n:
                 for j in self.range_m:
                     self.rows[i][j] += other.rows[i][j]
-            ()
+
             return self
         else:
-            raise TypeError("You can add/sub only Matrix to Matrix")
+            raise TypeError('You can add/sub only Matrix to Matrix')
 
     ##################################################
     # sing methods
     ##################################################
 
     def __neg__(self):
+        """ Return new matrix when: new_item = -old_item """
         tmp = self[:, :]
         for i in self.range_n:
             tmp.rows[i] = array('f', (-tmp.rows[i][j] for j in self.range_m))
@@ -197,6 +250,7 @@ class Matrix:
     ##################################################
 
     def __eq__(self, other):
+        """ Compare matrix. Two matrix is equal if equal each item's pair """
         return all((self.rows[i] == other.rows[i] for i in self.range_n))
 
     ##################################################
@@ -204,6 +258,15 @@ class Matrix:
     ##################################################
 
     def __mul__(self, other):
+        """ Mul matrix on number
+
+        Args:
+            other(Real): number to multiplicate
+
+        Returns:
+            Matrix: return new Matrix
+
+        """
         tmp = self[:, :]
         tmp *= other
         return tmp
@@ -212,6 +275,15 @@ class Matrix:
         return self * other
 
     def __imul__(self, other):
+        """ Mul matrix on number
+
+        Args:
+            other(Real): number to multiplicate
+
+        Returns:
+            Matrix: return self
+
+        """
         if not isinstance(other, Real):
             raise TypeError
 
@@ -228,6 +300,7 @@ class Matrix:
         return tmp
 
     def __imatmul__(self, other):
+        """ Mul first matrix on second matrix by math rules. """
         if not isinstance(other, Matrix):
             raise TypeError
 
@@ -255,13 +328,18 @@ class Matrix:
         return tmp
 
     def __ipow__(self, other):
+        """ Mul matrix on itself other times """
         if not isinstance(other, Integral):
             raise TypeError
 
         if self.n != self.m:
             raise DimensionError
 
-        q = self[:, :]
-        for i in range(other - 1):
-            self @= q
+        if other == 0:
+            q = Matrix.ones(self.n)
+            self.rows = q.rows
+        elif other > 1:
+            q = self[:, :]
+            for i in range(other - 1):
+                self @= q
         return self
