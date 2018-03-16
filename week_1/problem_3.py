@@ -124,7 +124,7 @@ class Matrix:
             self.calc_width()
             return self
         else:
-            raise TypeError("You can add only Matrix to Matrix")
+            raise TypeError("You can add/sub only Matrix to Matrix")
 
     ##################################################
     # sing methods
@@ -183,6 +183,23 @@ class Matrix:
         self.rows = [[item * other for item in row] for row in self.rows]
         self.calc_width()
         return self
+
+    def __matmul__(self, other):
+        if not isinstance(other, Matrix):
+            raise TypeError
+
+        if self.m != other.n:
+            raise DimensionError
+
+        tmp = [[0] * other.m for _ in range(self.n)]
+
+        for i in range(self.n):
+            for j in range(other.m):
+                q = (self.rows[i][k] * other.rows[k][j] for k in range(self.m))
+                tmp[i][j] = sum(q)
+        tmp = Matrix(*tmp)
+        tmp.calc_width()
+        return tmp
 
     ##################################################
     # Pow methods

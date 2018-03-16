@@ -11,6 +11,7 @@ class TestMatrix(TestCase):
             'simple2': ((10, 20, 30), (40, 50, 60)),
             'fail': ((1, 2), (1,)),
             '3x4': ((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12)),
+            'col': ((3,), (2,), (1,)),
         }
 
     def matrix(self, key):
@@ -200,3 +201,28 @@ class TestMatrix(TestCase):
         )
         self.assertNotEqual(id(m1), id(m2))
 
+    def test_transpose(self):
+        m1 = self.matrix('simple')
+        m2 = m1.T
+        m3 = m2.T
+
+        self.assertNotEqual(m1, m2)
+        self.assertEqual(m1, m3)
+
+    def test_matmul(self):
+        m1 = self.matrix('simple')
+        m2 = self.matrix('col')
+        m3 = m1 @ m2
+        self.assertEqual(
+            repr(m3),
+            "10.0 \n"
+            "28.0 "
+        )
+
+        m2 = m1.T
+        m3 = m1 @ m2
+        self.assertEqual(
+            repr(m3),
+            "14.0 32.0 \n"
+            "32.0 77.0 "
+        )
