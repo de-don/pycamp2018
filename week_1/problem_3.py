@@ -187,6 +187,9 @@ class Matrix:
         else:
             raise TypeError
 
+    def __iter__(self):
+        return (list(row) for row in self.rows)
+
     ##################################################
     # Add methods
     ##################################################
