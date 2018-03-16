@@ -157,6 +157,13 @@ class Matrix:
         self += (-other)
         return self
 
+    ##################################################
+    # Comparison methods
+    ##################################################
+
+    def __eq__(self, other):
+        return all((self.rows[i] == other.rows[i] for i in range(self.n)))
+
 
 if __name__ == "__main__":
     m = Matrix((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12))

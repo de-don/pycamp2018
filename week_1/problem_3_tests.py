@@ -140,3 +140,11 @@ class TestMatrix(TestCase):
         m1 -= m2
         new_id = id(m1)
         self.assertEqual(old_id, new_id)
+
+    def test_eq(self):
+        m1 = Matrix(*self.inputs['simple'])
+        m2 = Matrix(*self.inputs['simple'])
+        m3 = Matrix(*self.inputs['simple2'])
+
+        self.assertEqual(m1, m2)
+        self.assertNotEqual(m1, m3)
