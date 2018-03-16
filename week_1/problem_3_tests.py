@@ -120,14 +120,15 @@ class TestMatrix(TestCase):
 
     def test_sign(self):
         m = self.matrix('simple')
-
         self.assertEqual(
             repr(-m),
             "-1.0 -2.0 -3.0\n"
             "-4.0 -5.0 -6.0"
         )
+        self.assertEqual(-(-m), m)
+        self.assertEqual(+m, m)
 
-        self.assertEqual(repr(-(-m)), repr(m))
+
 
     def test_sub(self):
         m1 = self.matrix('simple')
