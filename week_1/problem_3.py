@@ -47,8 +47,16 @@ class Matrix:
 
     @property
     def T(self):
-        tmp = [[self.rows[j][i] for j in range(self.n)] for i in range(self.m)]
+        tmp = [[self.rows[j][i] for j in self.range_n] for i in self.range_m]
         return Matrix(*tmp)
+
+    @property
+    def range_n(self):
+        return range(self.n)
+
+    @property
+    def range_m(self):
+        return range(self.m)
 
     @classmethod
     def zeros(cls, n, m):
@@ -70,16 +78,16 @@ class Matrix:
             return len(f'{x: ,.{self.precision}f}')
 
         max_len_in_col = []
-        for i in range(self.m):
+        for i in self.range_m:
             q = 0
-            for j in range(self.n):
+            for j in self.range_n:
                 q = max(q, len_fmt(self.rows[j][i]) + (i != 0))
             max_len_in_col.append(q)
 
         lines = []
-        for i in range(self.n):
+        for i in self.range_n:
             q = []
-            for j in range(self.m):
+            for j in self.range_m:
                 x = self.rows[i][j]
                 q.append(f'{x:> #{max_len_in_col[j]},.{self.precision}f}')
             lines.append(''.join(q))
@@ -146,8 +154,8 @@ class Matrix:
             if self.size != other.size:
                 raise DimensionError
 
-            for i in range(self.n):
-                for j in range(self.m):
+            for i in self.range_n:
+                for j in self.range_m:
                     self.rows[i][j] += other.rows[i][j]
             ()
             return self
@@ -160,8 +168,8 @@ class Matrix:
 
     def __neg__(self):
         tmp = self[:, :]
-        for i in range(self.n):
-            tmp.rows[i] = array('f', (-tmp.rows[i][j] for j in range(self.m)))
+        for i in self.range_n:
+            tmp.rows[i] = array('f', (-tmp.rows[i][j] for j in self.range_m))
 
         return tmp
 
@@ -189,7 +197,7 @@ class Matrix:
     ##################################################
 
     def __eq__(self, other):
-        return all((self.rows[i] == other.rows[i] for i in range(self.n)))
+        return all((self.rows[i] == other.rows[i] for i in self.range_n))
 
     ##################################################
     # Mul methods
@@ -226,11 +234,11 @@ class Matrix:
         if self.m != other.n:
             raise DimensionError
 
-        tmp = [array('f', [0] * other.m) for _ in range(self.n)]
+        tmp = [array('f', [0] * other.m) for _ in self.range_n]
 
-        for i in range(self.n):
+        for i in self.range_n:
             for j in range(other.m):
-                q = (self.rows[i][k] * other.rows[k][j] for k in range(self.m))
+                q = (self.rows[i][k] * other.rows[k][j] for k in self.range_m)
                 tmp[i][j] = sum(q)
 
         self.rows = tmp
