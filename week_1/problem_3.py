@@ -133,7 +133,7 @@ class Matrix:
     def __neg__(self):
         tmp = self[:, :]
         for i in range(self.n):
-            tmp.rows[i] = [-tmp.rows[i][j] for j in range(self.m)]
+            tmp.rows[i] = array('f', (-tmp.rows[i][j] for j in range(self.m)))
         tmp.calc_width()
 
         return tmp
@@ -184,22 +184,33 @@ class Matrix:
         self.calc_width()
         return self
 
+    ##################################################
+    # MatMul
+    ##################################################
+
     def __matmul__(self, other):
+        tmp = self[:, :]
+        tmp @= other
+        return tmp
+
+    def __imatmul__(self, other):
         if not isinstance(other, Matrix):
             raise TypeError
 
         if self.m != other.n:
             raise DimensionError
 
-        tmp = [[0] * other.m for _ in range(self.n)]
+        tmp = [array('f', [0] * other.m) for _ in range(self.n)]
 
         for i in range(self.n):
             for j in range(other.m):
                 q = (self.rows[i][k] * other.rows[k][j] for k in range(self.m))
                 tmp[i][j] = sum(q)
-        tmp = Matrix(*tmp)
-        tmp.calc_width()
-        return tmp
+
+        self.rows = tmp
+        self.calc_width()
+        return self
+
 
     ##################################################
     # Pow methods
@@ -217,9 +228,3 @@ class Matrix:
         self.rows = [[item ** other for item in row] for row in self.rows]
         self.calc_width()
         return self
-
-
-if __name__ == "__main__":
-    m = Matrix((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12))
-    m2 = Matrix(m)
-    print(m2)
