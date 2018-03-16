@@ -22,8 +22,8 @@ class TestMatrix(TestCase):
         m = self.matrix('simple')
         self.assertEqual(
             repr(m),
-            "1.0 2.0 3.0\n"
-            "4.0 5.0 6.0"
+            " 1.0  2.0  3.0\n"
+            " 4.0  5.0  6.0"
         )
 
     def test_init_fail(self):
@@ -34,38 +34,37 @@ class TestMatrix(TestCase):
         m = self.matrix('simple')
         self.assertEqual(
             str(m),
-            "Matrix 2x3\n"
-            "===========\n"
-            "1.0 2.0 3.0\n"
-            "4.0 5.0 6.0"
+            "[Matrix 2x3]\n"
+            " 1.0  2.0  3.0\n"
+            " 4.0  5.0  6.0"
         )
 
     def test_slice(self):
         m = self.matrix('simple')
         self.assertEqual(
             repr(m[0]),
-            "1.0 2.0 3.0"
+            " 1.0  2.0  3.0"
         )
         self.assertEqual(
             repr(m[1,]),
-            "4.0 5.0 6.0"
+            " 4.0  5.0  6.0"
         )
         self.assertEqual(
             repr(m[-1]),
-            "4.0 5.0 6.0"
+            " 4.0  5.0  6.0"
         )
         self.assertEqual(
             repr(m[::-1]),
-            "4.0 5.0 6.0\n"
-            "1.0 2.0 3.0"
+            " 4.0  5.0  6.0\n"
+            " 1.0  2.0  3.0"
         )
 
     def test_slice_binary(self):
         m = self.matrix('3x4')
         self.assertEqual(
             repr(m[0:2]),
-            "1.0 2.0 3.0\n"
-            "4.0 5.0 6.0"
+            " 1.0  2.0  3.0\n"
+            " 4.0  5.0  6.0"
         )
         self.assertEqual(
             m[1, 1],
@@ -73,20 +72,20 @@ class TestMatrix(TestCase):
         )
         self.assertEqual(
             repr(m[0:2, 0:2]),
-            "1.0 2.0\n"
-            "4.0 5.0"
+            " 1.0  2.0\n"
+            " 4.0  5.0"
         )
         self.assertEqual(
             repr(m[0:2, 0:2]),
-            "1.0 2.0\n"
-            "4.0 5.0"
+            " 1.0  2.0\n"
+            " 4.0  5.0"
         )
         self.assertEqual(
             repr(m[::-1, ::-1]),
-            "12.0 11.0 10.0\n"
-            "9.0  8.0  7.0\n"
-            "6.0  5.0  4.0\n"
-            "3.0  2.0  1.0"
+            " 12.0  11.0  10.0\n"
+            "  9.0   8.0   7.0\n"
+            "  6.0   5.0   4.0\n"
+            "  3.0   2.0   1.0"
         )
 
     def test_slice_reise(self):
@@ -126,7 +125,7 @@ class TestMatrix(TestCase):
 
         self.assertEqual(
             repr(m),
-            "1.0  2.0  3.0\n"
+            " 1.0  2.0  3.0\n"
             "-1.0 -2.0 -3.0"
         )
 
@@ -142,8 +141,8 @@ class TestMatrix(TestCase):
         m3 = m1 + m2
         self.assertEqual(
             repr(m3),
-            "11.0 22.0 33.0\n"
-            "44.0 55.0 66.0"
+            " 11.0  22.0  33.0\n"
+            " 44.0  55.0  66.0"
         )
         self.assertNotEqual(id(m1), id(m3))
 
@@ -177,8 +176,8 @@ class TestMatrix(TestCase):
         m3 = m2 - m1
         self.assertEqual(
             repr(m3),
-            "9.0  18.0 27.0\n"
-            "36.0 45.0 54.0"
+            "  9.0  18.0  27.0\n"
+            " 36.0  45.0  54.0"
         )
         self.assertNotEqual(id(m1), id(m3))
 
@@ -213,16 +212,16 @@ class TestMatrix(TestCase):
         new_id = id(m1)
         self.assertEqual(
             repr(m1),
-            "1.5 3.0 4.5\n"
-            "6.0 7.5 9.0"
+            " 1.5  3.0  4.5\n"
+            " 6.0  7.5  9.0"
         )
         self.assertEqual(old_id, new_id)
 
         m2 = m1 * 2
         self.assertEqual(
             repr(m2),
-            "3.0  6.0  9.0\n"
-            "12.0 15.0 18.0"
+            "  3.0   6.0   9.0\n"
+            " 12.0  15.0  18.0"
         )
         self.assertNotEqual(old_id, id(m2))
 
@@ -272,8 +271,8 @@ class TestMatrix(TestCase):
         m3 = m1 @ m2
         self.assertEqual(
             repr(m3),
-            "10.0\n"
-            "28.0"
+            " 10.0\n"
+            " 28.0"
         )
         m1 @= m2
         self.assertEqual(m1, m3)
@@ -283,8 +282,8 @@ class TestMatrix(TestCase):
         m3 = m1 @ m2
         self.assertEqual(
             repr(m3),
-            "14.0 32.0\n"
-            "32.0 77.0"
+            " 14.0  32.0\n"
+            " 32.0  77.0"
         )
 
     def test_matmul_raise(self):
@@ -300,15 +299,15 @@ class TestMatrix(TestCase):
         m = Matrix.zeros(2, 3)
         self.assertEqual(
             repr(m),
-            "0.0 0.0 0.0\n"
-            "0.0 0.0 0.0"
+            " 0.0  0.0  0.0\n"
+            " 0.0  0.0  0.0"
         )
 
     def test_ones(self):
         m = Matrix.ones(3)
         self.assertEqual(
             repr(m),
-            "1.0 0.0 0.0\n"
-            "0.0 1.0 0.0\n"
-            "0.0 0.0 1.0"
+            " 1.0  0.0  0.0\n"
+            " 0.0  1.0  0.0\n"
+            " 0.0  0.0  1.0"
         )

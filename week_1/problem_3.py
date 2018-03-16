@@ -1,6 +1,5 @@
 from array import array
 from collections import Iterable
-from itertools import chain
 from numbers import Integral, Real
 
 
@@ -27,8 +26,10 @@ class Matrix:
     rows = None
     n, m = 0, 0  # count rows and cols
     width = 5
+    precision = 1
 
-    def __init__(self, *args):
+    def __init__(self, *args, precision=1):
+        self.precision = precision
         rows = [array('f', row) for row in args]
 
         self.n = len(rows)
@@ -39,11 +40,6 @@ class Matrix:
             raise DimensionError
 
         self.rows = rows
-        self.calc_width()
-
-    def calc_width(self):
-        """ Method to calc column width """
-        self.width = max(map(len, map(str, chain.from_iterable(self.rows))), default=0) + 1
 
     @property
     def size(self):
@@ -65,16 +61,29 @@ class Matrix:
         return cls(*rows)
 
     def __str__(self):
-        s = f'Matrix {self.n}x{self.m}\n'
-        s += '=' * (self.width * self.m - 1) + '\n'
+        s = f'[Matrix {self.n}x{self.m}]\n'
         s += repr(self)
         return s
 
     def __repr__(self):
+        def len_fmt(x):
+            return len(f'{x: ,.{self.precision}f}')
+
+        max_len_in_col = []
+        for i in range(self.m):
+            q = 0
+            for j in range(self.n):
+                q = max(q, len_fmt(self.rows[j][i]) + (i != 0))
+            max_len_in_col.append(q)
+
         lines = []
-        for row in self.rows:
-            lines.append(''.join(f'{i:<{self.width}}' for i in row))
-        return '\n'.join(map(str.strip, lines))
+        for i in range(self.n):
+            q = []
+            for j in range(self.m):
+                x = self.rows[i][j]
+                q.append(f'{x:> #{max_len_in_col[j]},.{self.precision}f}')
+            lines.append(''.join(q))
+        return '\n'.join(map(str.rstrip, lines))
 
     def __getitem__(self, item):
         h, v = split_2d_slice(item)
@@ -118,7 +127,7 @@ class Matrix:
         else:
             raise TypeError
 
-        self.calc_width()
+        ()
 
     ##################################################
     # Add methods
@@ -140,7 +149,7 @@ class Matrix:
             for i in range(self.n):
                 for j in range(self.m):
                     self.rows[i][j] += other.rows[i][j]
-            self.calc_width()
+            ()
             return self
         else:
             raise TypeError("You can add/sub only Matrix to Matrix")
@@ -153,7 +162,6 @@ class Matrix:
         tmp = self[:, :]
         for i in range(self.n):
             tmp.rows[i] = array('f', (-tmp.rows[i][j] for j in range(self.m)))
-        tmp.calc_width()
 
         return tmp
 
@@ -200,7 +208,6 @@ class Matrix:
             raise TypeError
 
         self.rows = [[item * other for item in row] for row in self.rows]
-        self.calc_width()
         return self
 
     ##################################################
@@ -227,7 +234,7 @@ class Matrix:
                 tmp[i][j] = sum(q)
 
         self.rows = tmp
-        self.calc_width()
+        self.m = other.m
         return self
 
     ##################################################
