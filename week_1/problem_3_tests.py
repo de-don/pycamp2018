@@ -29,6 +29,16 @@ class TestMatrix(TestCase):
         with self.assertRaises(Exception):
             self.matrix('fail')
 
+    def test_str(self):
+        m = self.matrix('simple')
+        self.assertEqual(
+            str(m),
+            "Matrix 2x3\n"
+            "===========\n"
+            "1.0 2.0 3.0\n"
+            "4.0 5.0 6.0"
+        )
+
     def test_slice(self):
         m = self.matrix('simple')
         self.assertEqual(
@@ -36,7 +46,7 @@ class TestMatrix(TestCase):
             "1.0 2.0 3.0"
         )
         self.assertEqual(
-            repr(m[1]),
+            repr(m[1,]),
             "4.0 5.0 6.0"
         )
         self.assertEqual(
@@ -78,6 +88,13 @@ class TestMatrix(TestCase):
             "3.0  2.0  1.0"
         )
 
+    def test_slice_reise(self):
+        m1 = self.matrix('simple')
+        with self.assertRaises(TypeError):
+            m1 = m1[1, 1, 1]
+        with self.assertRaises(TypeError):
+            m1['ser']
+
     def test_none(self):
         m = Matrix()
         self.assertEqual(
@@ -95,6 +112,11 @@ class TestMatrix(TestCase):
         m[1, 1] = 0
         self.assertEqual(m[1, 1], 0)
         self.assertEqual(m[1, 0], 4)
+
+        with self.assertRaises(TypeError):
+            m[1, 1] = "test"
+        with self.assertRaises(TypeError):
+            m[0:1, 1] = 1
 
     def test_add(self):
         m1 = self.matrix('simple')
@@ -118,6 +140,9 @@ class TestMatrix(TestCase):
         with self.assertRaises(DimensionError):
             m1 + m2
 
+        with self.assertRaises(TypeError):
+            1 + m1
+
     def test_sign(self):
         m = self.matrix('simple')
         self.assertEqual(
@@ -127,8 +152,6 @@ class TestMatrix(TestCase):
         )
         self.assertEqual(-(-m), m)
         self.assertEqual(+m, m)
-
-
 
     def test_sub(self):
         m1 = self.matrix('simple')
@@ -145,6 +168,15 @@ class TestMatrix(TestCase):
         m1 -= m2
         new_id = id(m1)
         self.assertEqual(old_id, new_id)
+
+    def test_sub_raise(self):
+        m1 = self.matrix('simple')
+        m2 = self.matrix('3x4')
+        with self.assertRaises(DimensionError):
+            m1 - m2
+
+        with self.assertRaises(TypeError):
+            1 - m1
 
     def test_eq(self):
         m1 = self.matrix('simple')
@@ -179,6 +211,11 @@ class TestMatrix(TestCase):
         m3 = 2 * m1
         self.assertEqual(m2, m3)
 
+    def test_mul_raise(self):
+        m1 = self.matrix('simple')
+        with self.assertRaises(TypeError):
+            m1 * 'test'
+
     def test_pow(self):
         m1 = self.matrix('simple')
         old_id = id(m1)
@@ -201,6 +238,11 @@ class TestMatrix(TestCase):
             "16.0 25.0 36.0"
         )
         self.assertNotEqual(id(m1), id(m2))
+
+    def test_pow_raise(self):
+        m1 = self.matrix('simple')
+        with self.assertRaises(TypeError):
+            m1 ** 'test'
 
     def test_transpose(self):
         m1 = self.matrix('simple')
@@ -239,4 +281,3 @@ class TestMatrix(TestCase):
         m2 = self.matrix('3x4')
         with self.assertRaises(DimensionError):
             m1 @ m2
-

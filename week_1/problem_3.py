@@ -16,7 +16,10 @@ def split_2d_slice(item):
         else:
             raise TypeError("Slice must be int, slice, or tuple of them")
     else:
-        return item, None
+        if isinstance(item, slice) or isinstance(item, int):
+            return item, None
+        else:
+            raise TypeError("Slice must be int, slice, or tuple of them")
 
 
 class Matrix:
@@ -94,7 +97,7 @@ class Matrix:
         h, v = split_2d_slice(key)
 
         if isinstance(value, Real):
-            if h is not None and v is not None:
+            if isinstance(h, int) and isinstance(v, int):
                 self.rows[h][v] = value
             else:
                 raise TypeError
@@ -210,7 +213,6 @@ class Matrix:
         self.rows = tmp
         self.calc_width()
         return self
-
 
     ##################################################
     # Pow methods
