@@ -84,3 +84,9 @@ class TestMatrix(TestCase):
             m[1:1],
             None,
         )
+
+    def test_set_one_item(self):
+        m = Matrix(*self.inputs['simple'])
+        m[1, 1] = 0
+        self.assertEqual(m[1, 1], 0)
+        self.assertEqual(m[1, 0], 4)

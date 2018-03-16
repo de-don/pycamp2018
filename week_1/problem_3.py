@@ -1,5 +1,22 @@
 from array import array
 from itertools import chain
+from numbers import Real
+
+
+class DimensionError(ValueError):
+    pass
+
+
+def split_2d_slice(item):
+    if isinstance(item, tuple):
+        if len(item) == 1:
+            return item[0], None
+        elif len(item) == 2:
+            return item
+        else:
+            raise TypeError("Slice must be int, slice, or tuple of them")
+    else:
+        return item, None
 
 
 class Matrix:
@@ -15,7 +32,7 @@ class Matrix:
 
         # checking dimension
         if self.m != min(map(len, rows), default=0):
-            raise Exception("len each of rows must be equal")
+            raise DimensionError
 
         self.rows = rows
         self.calc_width()
@@ -46,15 +63,7 @@ class Matrix:
         return '\n'.join(lines)
 
     def __getitem__(self, item):
-        if isinstance(item, tuple):
-            if len(item) == 1:
-                h, v = item[0], None
-            elif len(item) == 2:
-                h, v = item
-            else:
-                raise TypeError("Slice must be int, slice, or tuple of them")
-        else:
-            h, v = item, None
+        h, v = split_2d_slice(item)
 
         tmp = self.rows[:]
         if h is not None:
@@ -78,6 +87,19 @@ class Matrix:
             return None
 
         return matr
+
+    def __setitem__(self, key, value):
+        # not completed!!!
+
+        h, v = split_2d_slice(key)
+
+        if isinstance(value, Real):
+            if h is not None and v is not None:
+                self.rows[h][v] = value
+            else:
+                raise TypeError
+        else:
+            raise TypeError
 
 
 if __name__ == "__main__":
