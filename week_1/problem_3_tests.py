@@ -219,7 +219,10 @@ class TestMatrix(TestCase):
             "10.0\n"
             "28.0"
         )
+        m1 @= m2
+        self.assertEqual(m1, m3)
 
+        m1 = self.matrix('simple')
         m2 = m1.T
         m3 = m1 @ m2
         self.assertEqual(
@@ -227,3 +230,13 @@ class TestMatrix(TestCase):
             "14.0 32.0\n"
             "32.0 77.0"
         )
+
+    def test_matmul_raise(self):
+        m1 = self.matrix('simple')
+        with self.assertRaises(TypeError):
+            m1 @= "test"
+
+        m2 = self.matrix('3x4')
+        with self.assertRaises(DimensionError):
+            m1 @ m2
+
