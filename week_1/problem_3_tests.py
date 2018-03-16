@@ -151,3 +151,28 @@ class TestMatrix(TestCase):
 
         self.assertEqual(m1, m2)
         self.assertNotEqual(m1, m3)
+
+    def test_mul(self):
+        m1 = self.matrix('simple')
+        old_id = id(m1)
+
+        val = 1.5
+        m1 *= val
+        new_id = id(m1)
+        self.assertEqual(
+            repr(m1),
+            "1.5 3.0 4.5 \n"
+            "6.0 7.5 9.0 "
+        )
+        self.assertEqual(old_id, new_id)
+
+        m2 = m1 * 2
+        self.assertEqual(
+            repr(m2),
+            "3.0  6.0  9.0  \n"
+            "12.0 15.0 18.0 "
+        )
+        self.assertNotEqual(old_id, id(m2))
+
+        m3 = 2 * m1
+        self.assertEqual(m2, m3)
