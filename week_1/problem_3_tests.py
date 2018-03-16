@@ -15,7 +15,7 @@ class TestMatrix(TestCase):
 
     def matrix(self, key):
         return Matrix(*self.inputs[key])
-    
+
     def test_init(self):
         m = self.matrix('simple')
         self.assertEqual(
@@ -176,3 +176,27 @@ class TestMatrix(TestCase):
 
         m3 = 2 * m1
         self.assertEqual(m2, m3)
+
+    def test_pow(self):
+        m1 = self.matrix('simple')
+        old_id = id(m1)
+
+        val = 2
+        m1 **= val
+        new_id = id(m1)
+        self.assertEqual(
+            repr(m1),
+            "1.0  4.0  9.0  \n"
+            "16.0 25.0 36.0 "
+        )
+        self.assertEqual(old_id, new_id)
+
+        m1 = self.matrix('simple')
+        m2 = m1 ** 2
+        self.assertEqual(
+            repr(m2),
+            "1.0  4.0  9.0  \n"
+            "16.0 25.0 36.0 "
+        )
+        self.assertNotEqual(id(m1), id(m2))
+

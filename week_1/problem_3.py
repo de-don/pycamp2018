@@ -184,6 +184,23 @@ class Matrix:
         self.calc_width()
         return self
 
+    ##################################################
+    # Pow methods
+    ##################################################
+
+    def __pow__(self, other):
+        tmp = self[:, :]
+        tmp **= other
+        return tmp
+
+    def __ipow__(self, other):
+        if not isinstance(other, Real):
+            raise TypeError
+
+        self.rows = [[item ** other for item in row] for row in self.rows]
+        self.calc_width()
+        return self
+
 
 if __name__ == "__main__":
     m = Matrix((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12))
