@@ -37,7 +37,7 @@ class Matrix:
     """ Matrix class. Support many matrix-operations
     """
     rows = None
-    n, m = 0, 0    # count rows and cols
+    n, m = 0, 0  # count rows and cols
     precision = 1  # precision for output
 
     def __init__(self, *args, precision=1):
@@ -186,7 +186,6 @@ class Matrix:
             self.rows[h] = array('f', value)
         else:
             raise TypeError
-
 
     ##################################################
     # Add methods
