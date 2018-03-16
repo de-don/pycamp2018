@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from .problem_3 import Matrix, DimensionError
+from .problem_3 import DimensionError, Matrix
 
 
 class TestMatrix(TestCase):
@@ -12,6 +12,7 @@ class TestMatrix(TestCase):
             'fail': ((1, 2), (1,)),
             '3x4': ((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12)),
             'col': ((3,), (2,), (1,)),
+            '2x2': ((1, 2), (3, 4))
         }
 
     def matrix(self, key):
@@ -217,32 +218,28 @@ class TestMatrix(TestCase):
             m1 * 'test'
 
     def test_pow(self):
-        m1 = self.matrix('simple')
-        old_id = id(m1)
+        m1 = self.matrix('2x2')
+        m2 = self.matrix('2x2')
+        old_id = id(m2)
 
         val = 2
-        m1 **= val
-        new_id = id(m1)
-        self.assertEqual(
-            repr(m1),
-            "1.0  4.0  9.0\n"
-            "16.0 25.0 36.0"
-        )
+        m2 **= val
+        new_id = id(m2)
+        self.assertEqual(m2, m1 @ m1)
         self.assertEqual(old_id, new_id)
 
-        m1 = self.matrix('simple')
+        m1 = self.matrix('2x2')
         m2 = m1 ** 2
-        self.assertEqual(
-            repr(m2),
-            "1.0  4.0  9.0\n"
-            "16.0 25.0 36.0"
-        )
+        self.assertEqual(m1 ** 3, m1 @ m1 @ m1)
         self.assertNotEqual(id(m1), id(m2))
 
     def test_pow_raise(self):
         m1 = self.matrix('simple')
         with self.assertRaises(TypeError):
             m1 ** 'test'
+
+        with self.assertRaises(DimensionError):
+            m1 ** 2
 
     def test_transpose(self):
         m1 = self.matrix('simple')

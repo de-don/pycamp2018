@@ -1,6 +1,6 @@
 from array import array
 from itertools import chain
-from numbers import Real
+from numbers import Integral, Real
 
 
 class DimensionError(ValueError):
@@ -16,7 +16,7 @@ def split_2d_slice(item):
         else:
             raise TypeError("Slice must be int, slice, or tuple of them")
     else:
-        if isinstance(item, slice) or isinstance(item, int):
+        if isinstance(item, slice) or isinstance(item, Integral):
             return item, None
         else:
             raise TypeError("Slice must be int, slice, or tuple of them")
@@ -70,13 +70,13 @@ class Matrix:
 
         tmp = self.rows[:]
         if h is not None:
-            if isinstance(h, int):
+            if isinstance(h, Integral):
                 tmp = [tmp[h]]
             elif isinstance(h, slice):
                 tmp = tmp[h]
 
         if (v is not None) and tmp:
-            if isinstance(v, int):
+            if isinstance(v, Integral):
                 tmp = [[row[v]] for row in tmp]
             elif isinstance(v, slice):
                 tmp = [row[v] for row in tmp]
@@ -97,7 +97,7 @@ class Matrix:
         h, v = split_2d_slice(key)
 
         if isinstance(value, Real):
-            if isinstance(h, int) and isinstance(v, int):
+            if isinstance(h, Integral) and isinstance(v, Integral):
                 self.rows[h][v] = value
             else:
                 raise TypeError
@@ -224,9 +224,13 @@ class Matrix:
         return tmp
 
     def __ipow__(self, other):
-        if not isinstance(other, Real):
+        if not isinstance(other, Integral):
             raise TypeError
 
-        self.rows = [[item ** other for item in row] for row in self.rows]
-        self.calc_width()
+        if self.n != self.m:
+            raise DimensionError
+
+        q = self[:, :]
+        for i in range(other - 1):
+            self @= q
         return self
