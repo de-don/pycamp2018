@@ -295,3 +295,20 @@ class TestMatrix(TestCase):
         m2 = self.matrix('3x4')
         with self.assertRaises(DimensionError):
             m1 @ m2
+
+    def test_zeros(self):
+        m = Matrix.zeros(2, 3)
+        self.assertEqual(
+            repr(m),
+            "0.0 0.0 0.0\n"
+            "0.0 0.0 0.0"
+        )
+
+    def test_ones(self):
+        m = Matrix.ones(3)
+        self.assertEqual(
+            repr(m),
+            "1.0 0.0 0.0\n"
+            "0.0 1.0 0.0\n"
+            "0.0 0.0 1.0"
+        )

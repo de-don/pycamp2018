@@ -54,6 +54,16 @@ class Matrix:
         tmp = [[self.rows[j][i] for j in range(self.n)] for i in range(self.m)]
         return Matrix(*tmp)
 
+    @classmethod
+    def zeros(cls, n, m):
+        rows = [(0 for _ in range(m)) for _ in range(n)]
+        return cls(*rows)
+
+    @classmethod
+    def ones(cls, n):
+        rows = [[i == j for j in range(n)] for i in range(n)]
+        return cls(*rows)
+
     def __str__(self):
         s = f'Matrix {self.n}x{self.m}\n'
         s += '=' * (self.width * self.m - 1) + '\n'
