@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from .problem_3 import Matrix
+from .problem_3 import Matrix, DimensionError
 
 
 class TestMatrix(TestCase):
@@ -8,6 +8,7 @@ class TestMatrix(TestCase):
     def setUp(self):
         self.inputs = {
             'simple': ((1, 2, 3), (4, 5, 6)),
+            'simple2': ((10, 20, 30), (40, 50, 60)),
             'fail': ((1, 2), (1,)),
             '3x4': ((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12)),
         }
@@ -90,3 +91,25 @@ class TestMatrix(TestCase):
         m[1, 1] = 0
         self.assertEqual(m[1, 1], 0)
         self.assertEqual(m[1, 0], 4)
+
+    def test_add(self):
+        m1 = Matrix(*self.inputs['simple'])
+        m2 = Matrix(*self.inputs['simple2'])
+        m3 = m1 + m2
+        self.assertEqual(
+            repr(m3),
+            "11.0 22.0 33.0 \n"
+            "44.0 55.0 66.0 "
+        )
+        self.assertNotEqual(id(m1), id(m3))
+
+        old_id = id(m1)
+        m1 += m2
+        new_id = id(m1)
+        self.assertEqual(old_id, new_id)
+
+    def test_add_raise(self):
+        m1 = Matrix(*self.inputs['simple'])
+        m2 = Matrix(*self.inputs['3x4'])
+        with self.assertRaises(DimensionError):
+            m1 + m2

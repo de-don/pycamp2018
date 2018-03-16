@@ -101,8 +101,33 @@ class Matrix:
         else:
             raise TypeError
 
+    ##################################################
+    # Add methods
+    ##################################################
+
+    def __add__(self, other):
+        tmp = self[:, :]
+        tmp += other
+        return tmp
+
+    def __radd__(self, other):
+        return self + other
+
+    def __iadd__(self, other):
+        if isinstance(other, Matrix):
+            if self.size != other.size:
+                raise DimensionError
+
+            for i in range(self.n):
+                for j in range(self.m):
+                    self.rows[i][j] += other.rows[i][j]
+            self.calc_width()
+            return self
+        else:
+            raise TypeError("You can add only Matrix to Matrix")
+
 
 if __name__ == "__main__":
     m = Matrix((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12))
-
-    print(m[1:1])
+    m2 = Matrix(m)
+    print(m2)
