@@ -126,6 +126,37 @@ class Matrix:
         else:
             raise TypeError("You can add only Matrix to Matrix")
 
+    ##################################################
+    # sing methods
+    ##################################################
+
+    def __neg__(self):
+        tmp = self[:, :]
+        for i in range(self.n):
+            tmp.rows[i] = [-tmp.rows[i][j] for j in range(self.m)]
+        tmp.calc_width()
+
+        return tmp
+
+    def __pos__(self):
+        return self[:, :]
+
+    ##################################################
+    # Sub methods
+    ##################################################
+
+    def __sub__(self, other):
+        tmp = self[:, :]
+        tmp -= other
+        return tmp
+
+    def __rsub__(self, other):
+        return (-self) + other
+
+    def __isub__(self, other):
+        self += (-other)
+        return self
+
 
 if __name__ == "__main__":
     m = Matrix((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12))

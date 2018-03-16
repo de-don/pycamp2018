@@ -113,3 +113,30 @@ class TestMatrix(TestCase):
         m2 = Matrix(*self.inputs['3x4'])
         with self.assertRaises(DimensionError):
             m1 + m2
+
+    def test_sign(self):
+        m = Matrix(*self.inputs['simple'])
+
+        self.assertEqual(
+            repr(-m),
+            "-1.0 -2.0 -3.0 \n"
+            "-4.0 -5.0 -6.0 "
+        )
+
+        self.assertEqual(repr(-(-m)), repr(m))
+
+    def test_sub(self):
+        m1 = Matrix(*self.inputs['simple'])
+        m2 = Matrix(*self.inputs['simple2'])
+        m3 = m2 - m1
+        self.assertEqual(
+            repr(m3),
+            "9.0  18.0 27.0 \n"
+            "36.0 45.0 54.0 "
+        )
+        self.assertNotEqual(id(m1), id(m3))
+
+        old_id = id(m1)
+        m1 -= m2
+        new_id = id(m1)
+        self.assertEqual(old_id, new_id)
