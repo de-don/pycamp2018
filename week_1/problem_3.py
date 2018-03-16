@@ -25,6 +25,10 @@ class Matrix:
         self.width = max(map(len, map(str, chain.from_iterable(self.rows))), default=0) + 1
 
     @property
+    def size(self):
+        return self.n, self.m
+
+    @property
     def T(self):
         tmp = [[self.rows[j][i] for j in range(self.n)] for i in range(self.m)]
         return Matrix(*tmp)
@@ -41,38 +45,39 @@ class Matrix:
             lines.append(''.join(f'{i:<{self.width}}' for i in row))
         return '\n'.join(lines)
 
-    def hslice(self, item):
-        if isinstance(item, int):
-            return Matrix(self.rows[item])
-
-        elif isinstance(item, slice):
-            return Matrix(*self.rows[item])
-
-    def vslice(self, item):
-        if self.n == 1:
-            return Matrix([self.rows[0][item]])
-        else:
-            return Matrix(*[row[item] for row in self.rows])
-
     def __getitem__(self, item):
         if isinstance(item, tuple):
             if len(item) == 1:
                 h, v = item[0], None
+            elif len(item) == 2:
+                h, v = item
             else:
-                h, v = item[:2]
+                raise TypeError("Slice must be int, slice, or tuple of them")
         else:
             h, v = item, None
-        tmp = self.hslice(h)
-        if v:
-            tmp = tmp.vslice(v)
 
-        if tmp.n == 1 and tmp.m == 1:
-            return tmp.rows[0][0]
+        tmp = self.rows[:]
+        if h is not None:
+            if isinstance(h, int):
+                tmp = [tmp[h]]
+            elif isinstance(h, slice):
+                tmp = tmp[h]
 
-        if tmp.n == 0 or tmp.m == 0:
+        if (v is not None) and tmp:
+            if isinstance(v, int):
+                tmp = [[row[v]] for row in tmp]
+            elif isinstance(v, slice):
+                tmp = [row[v] for row in tmp]
+
+        matr = Matrix(*tmp)
+
+        if matr.size == (1, 1):
+            return matr.rows[0][0]
+
+        if matr.n == 0 or matr.m == 0:
             return None
 
-        return tmp
+        return matr
 
 
 if __name__ == "__main__":
