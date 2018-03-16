@@ -1,4 +1,5 @@
 from array import array
+from collections import Iterable
 from itertools import chain
 from numbers import Integral, Real
 
@@ -92,17 +93,22 @@ class Matrix:
         return matr
 
     def __setitem__(self, key, value):
-        # not completed!!!
-
         h, v = split_2d_slice(key)
 
-        if isinstance(value, Real):
-            if isinstance(h, Integral) and isinstance(v, Integral):
-                self.rows[h][v] = value
-            else:
-                raise TypeError
+        if isinstance(value, Real) and isinstance(h, Integral) \
+                and isinstance(v, Integral):
+            self.rows[h][v] = value
+        elif isinstance(value, Iterable) and isinstance(h, Integral) \
+                and v is None:
+            row = array('f', value)
+            if len(row) != self.m:
+                raise DimensionError
+
+            self.rows[h] = array('f', value)
         else:
             raise TypeError
+
+        self.calc_width()
 
     ##################################################
     # Add methods

@@ -119,6 +119,23 @@ class TestMatrix(TestCase):
         with self.assertRaises(TypeError):
             m[0:1, 1] = 1
 
+    def test_set_row(self):
+        m = self.matrix('simple')
+
+        m[1] = (-1, -2, -3)
+
+        self.assertEqual(
+            repr(m),
+            "1.0  2.0  3.0\n"
+            "-1.0 -2.0 -3.0"
+        )
+
+        with self.assertRaises(TypeError):
+            m[1] = "test"
+
+        with self.assertRaises(DimensionError):
+            m[0] = (1, 2)
+
     def test_add(self):
         m1 = self.matrix('simple')
         m2 = self.matrix('simple2')
