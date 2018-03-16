@@ -15,8 +15,8 @@ def split_2d_slice(item):
         item(Tuple[slice]): pair of slice or int.
 
     Returns:
-        slice: first slice or None
-        slice: second slice or None
+        1) slice: first slice or None
+        2) slice: second slice or None
 
     """
     if isinstance(item, tuple):
@@ -146,25 +146,33 @@ class Matrix:
         return '\n'.join(map(str.rstrip, lines))
 
     def __getitem__(self, item):
+        # get horizontal and vertical slices
         h, v = split_2d_slice(item)
 
-        tmp = self.rows[:]
+        tmp = list(self)
+
+        # horizontal slice, if exists
         if h is not None:
             if isinstance(h, Integral):
                 tmp = [tmp[h]]
             elif isinstance(h, slice):
                 tmp = tmp[h]
 
+        # vertical slice, if exists
         if (v is not None) and tmp:
             if isinstance(v, Integral):
                 tmp = [[row[v]] for row in tmp]
             elif isinstance(v, slice):
                 tmp = [row[v] for row in tmp]
 
+        # create matrix from slice
         matr = Matrix(*tmp)
 
-        if matr.size == (1, 1):
-            return matr.rows[0][0]
+        # If need return one number
+        if isinstance(h, Integral) and isinstance(v, Integral):
+            if matr.size == (1, 1):
+                return matr.rows[0][0]
+            return None
 
         if matr.n == 0 or matr.m == 0:
             return None
