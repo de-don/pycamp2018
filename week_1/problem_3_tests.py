@@ -13,8 +13,11 @@ class TestMatrix(TestCase):
             '3x4': ((1, 2, 3,), (4, 5, 6), (7, 8, 9), (10, 11, 12)),
         }
 
+    def matrix(self, key):
+        return Matrix(*self.inputs[key])
+    
     def test_init(self):
-        m = Matrix(*self.inputs['simple'])
+        m = self.matrix('simple')
         self.assertEqual(
             repr(m),
             "1.0 2.0 3.0 \n"
@@ -23,10 +26,10 @@ class TestMatrix(TestCase):
 
     def test_init_fail(self):
         with self.assertRaises(Exception):
-            Matrix(*self.inputs['fail'])
+            self.matrix('fail')
 
     def test_slice(self):
-        m = Matrix(*self.inputs['simple'])
+        m = self.matrix('simple')
         self.assertEqual(
             repr(m[0]),
             "1.0 2.0 3.0 "
@@ -46,7 +49,7 @@ class TestMatrix(TestCase):
         )
 
     def test_slice_binary(self):
-        m = Matrix(*self.inputs['3x4'])
+        m = self.matrix('3x4')
         self.assertEqual(
             repr(m[0:2]),
             "1.0 2.0 3.0 \n"
@@ -80,21 +83,21 @@ class TestMatrix(TestCase):
             repr(m),
             '',
         )
-        m = Matrix(*self.inputs['simple'])
+        m = self.matrix('simple')
         self.assertEqual(
             m[1:1],
             None,
         )
 
     def test_set_one_item(self):
-        m = Matrix(*self.inputs['simple'])
+        m = self.matrix('simple')
         m[1, 1] = 0
         self.assertEqual(m[1, 1], 0)
         self.assertEqual(m[1, 0], 4)
 
     def test_add(self):
-        m1 = Matrix(*self.inputs['simple'])
-        m2 = Matrix(*self.inputs['simple2'])
+        m1 = self.matrix('simple')
+        m2 = self.matrix('simple2')
         m3 = m1 + m2
         self.assertEqual(
             repr(m3),
@@ -109,13 +112,13 @@ class TestMatrix(TestCase):
         self.assertEqual(old_id, new_id)
 
     def test_add_raise(self):
-        m1 = Matrix(*self.inputs['simple'])
-        m2 = Matrix(*self.inputs['3x4'])
+        m1 = self.matrix('simple')
+        m2 = self.matrix('3x4')
         with self.assertRaises(DimensionError):
             m1 + m2
 
     def test_sign(self):
-        m = Matrix(*self.inputs['simple'])
+        m = self.matrix('simple')
 
         self.assertEqual(
             repr(-m),
@@ -126,8 +129,8 @@ class TestMatrix(TestCase):
         self.assertEqual(repr(-(-m)), repr(m))
 
     def test_sub(self):
-        m1 = Matrix(*self.inputs['simple'])
-        m2 = Matrix(*self.inputs['simple2'])
+        m1 = self.matrix('simple')
+        m2 = self.matrix('simple2')
         m3 = m2 - m1
         self.assertEqual(
             repr(m3),
@@ -142,9 +145,9 @@ class TestMatrix(TestCase):
         self.assertEqual(old_id, new_id)
 
     def test_eq(self):
-        m1 = Matrix(*self.inputs['simple'])
-        m2 = Matrix(*self.inputs['simple'])
-        m3 = Matrix(*self.inputs['simple2'])
+        m1 = self.matrix('simple')
+        m2 = self.matrix('simple')
+        m3 = self.matrix('simple2')
 
         self.assertEqual(m1, m2)
         self.assertNotEqual(m1, m3)
