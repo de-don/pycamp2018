@@ -170,8 +170,8 @@ class TestMatrix(TestCase):
             [[-1.0, -2.0, -3.0],
              [-4.0, -5.0, -6.0]],
         )
-        self.assertEqual(-(-m), m)
-        self.assertEqual(+m, m)
+        self.assertListEqual(list(-(-m)), list(m))
+        self.assertListEqual(list(+m), list(m))
 
     def test_sub(self):
         m1 = self.matrix('simple')

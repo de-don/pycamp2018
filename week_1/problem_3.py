@@ -235,12 +235,9 @@ class Matrix:
 
     def __neg__(self):
         """ Return new matrix when: new_item = -old_item """
-        tmp_matrix = self[:, :]
-        for i in range(self.count_rows):
-            row = (-tmp_matrix.rows[i][j] for j in range(self.count_cols))
-            tmp_matrix.rows[i] = array('f', row)
-
-        return tmp_matrix
+        tmp = Matrix(self)
+        tmp = Matrix(self)
+        return tmp*(-1)
 
     def __pos__(self):
         return self[:, :]
