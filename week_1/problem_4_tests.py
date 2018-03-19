@@ -87,6 +87,11 @@ class TestSet(TestCase):
         self.assertSetEqual(s1.difference(s2), Set((1, 2)))
         self.assertSetEqual(s1.difference(s2, s3), Set((2,)))
 
+        s1.difference_update(s2, s3)
+        self.assertSetEqual(s1, Set((2,)))
+        s2 -= Set([5, 1])
+        self.assertSetEqual(s2, Set([3]))
+
     def test_operations_symmetric_difference(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 5))

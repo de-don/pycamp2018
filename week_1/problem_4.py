@@ -60,11 +60,11 @@ class Set:
 
     def __eq__(self, other):
         return self <= other <= self
-    
+
     ##################################################
     # union
     ##################################################
-    
+
     def __or__(self, other):
         return Set(chain(self, other))
 
@@ -73,17 +73,17 @@ class Set:
         for other in args:
             s = s | other
         return s
-    
+
     def __ior__(self, other):
         s = self | other
         self._items = s._items
         return self
-    
+
     def update(self, *args):
         s = self.union(*args)
         self._items = s._items
         return self
-    
+
     ##################################################
     # intersection
     ##################################################
@@ -129,6 +129,16 @@ class Set:
         for other in args:
             s = s - other
         return s
+
+    def __isub__(self, other):
+        s = self - other
+        self._items = s._items
+        return self
+
+    def difference_update(self, *args):
+        s = self.difference(*args)
+        self._items = s._items
+        return self
 
     def __xor__(self, other):
         return (self | other) - (self & other)
