@@ -20,9 +20,9 @@ class Set:
         items = list()
 
         if iterable:
-            for i in iterable:
-                if i not in items:
-                    items.append(i)
+            for item in iterable:
+                if item not in items:
+                    items.append(item)
 
         self._items = items
 
@@ -94,21 +94,21 @@ class Set:
 
     def union(self, *args):
         """ Return the union of Sets as a new Set. """
-        s = self
+        tmp_set = self
         for other in args:
-            s = s | other
-        return s
+            tmp_set = tmp_set | other
+        return tmp_set
 
     @self_and_other_has_equal_type
     def __ior__(self, other):
-        s = self | other
-        self._items = s._items
+        tmp_set = self | other
+        self._items = tmp_set._items
         return self
 
     def update(self, *args):
         """ Update a Set with the union of itself and others. """
-        s = self.union(*args)
-        self._items = s._items
+        tmp_set = self.union(*args)
+        self._items = tmp_set._items
         return self
 
     ##################################################
@@ -126,21 +126,21 @@ class Set:
 
     def intersection(self, *args):
         """ Return the intersection of two Sets as a new Set. """
-        s = self
+        tmp_set = self
         for other in args:
-            s = s & other
-        return s
+            tmp_set = tmp_set & other
+        return tmp_set
 
     @self_and_other_has_equal_type
     def __iand__(self, other):
-        s = self & other
-        self._items = s._items
+        tmp_set = self & other
+        self._items = tmp_set._items
         return self
 
     def intersection_update(self, *args):
         """ Update a Set with the intersection of itself and another."""
-        s = self.intersection(*args)
-        self._items = s._items
+        tmp_set = self.intersection(*args)
+        self._items = tmp_set._items
         return self
 
     ##################################################
@@ -158,21 +158,21 @@ class Set:
 
     def difference(self, *args):
         """ Return the difference of two or more Sets as a new Set. """
-        s = self
+        tmp_set = self
         for other in args:
-            s = s - other
-        return s
+            tmp_set = tmp_set - other
+        return tmp_set
 
     @self_and_other_has_equal_type
     def __isub__(self, other):
-        s = self - other
-        self._items = s._items
+        tmp_set = self - other
+        self._items = tmp_set._items
         return self
 
     def difference_update(self, *args):
         """ Remove all elements of another Set from this Set. """
-        s = self.difference(*args)
-        self._items = s._items
+        tmp_set = self.difference(*args)
+        self._items = tmp_set._items
         return self
 
     ##################################################
@@ -185,21 +185,21 @@ class Set:
 
     def symmetric_difference(self, *args):
         """ Return the symmetric difference of two Sets as a new Set."""
-        s = self
+        tmp_set = self
         for other in args:
-            s = s ^ other
-        return s
+            tmp_set = tmp_set ^ other
+        return tmp_set
 
     @self_and_other_has_equal_type
     def __ixor__(self, other):
-        s = self ^ other
-        self._items = s._items
+        tmp_set = self ^ other
+        self._items = tmp_set._items
         return self
 
     def symmetric_difference_update(self, *args):
         """ Update a Set with the symmetric diff. of itself and another."""
-        s = self.symmetric_difference(*args)
-        self._items = s._items
+        tmp_set = self.symmetric_difference(*args)
+        self._items = tmp_set._items
         return self
 
     ##################################################
@@ -241,10 +241,10 @@ class Set:
         Raises KeyError if the Set is empty.
         """
         try:
-            q = self._items.pop()
+            item = self._items.pop()
         except IndexError:
             raise KeyError('pop from an empty Set')
-        return q
+        return item
 
     def clear(self):
         """ Remove all elements from this Set. """
