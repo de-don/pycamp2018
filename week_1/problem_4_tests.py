@@ -44,7 +44,7 @@ class TestSet(TestCase):
         self.assertFalse(s2 <= s1)
         self.assertFalse(s1.issuperset(s2))
 
-    def test_operations_union(self):
+    def test_method_union(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 4, 5))
         s3 = Set([7, 9])
@@ -59,7 +59,7 @@ class TestSet(TestCase):
         s2 |= s3
         self.assertNotEqual(s2, Set((3, 4, 5)))
 
-    def test_operations_isdisjoint(self):
+    def test_method_isdisjoint(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 4, 5))
         s3 = Set([7, 9])
@@ -67,7 +67,7 @@ class TestSet(TestCase):
         self.assertTrue(s1.isdisjoint(s3))
         self.assertFalse(s1.isdisjoint(s2))
 
-    def test_operations_intersection(self):
+    def test_method_intersection(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 2, 5))
         s3 = Set([7, 9])
@@ -79,7 +79,7 @@ class TestSet(TestCase):
         s2 &= Set([2, 3])
         self.assertSetEqual(s1, Set([2, 3]))
 
-    def test_operations_difference(self):
+    def test_method_difference(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 5))
         s3 = Set([1])
@@ -92,7 +92,7 @@ class TestSet(TestCase):
         s2 -= Set([5, 1])
         self.assertSetEqual(s2, Set([3]))
 
-    def test_operations_symmetric_difference(self):
+    def test_method_symmetric_difference(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 5))
         self.assertSetEqual(s1 ^ s2, Set((1, 2, 5)))

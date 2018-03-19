@@ -6,7 +6,7 @@ def self_and_other_has_equal_type(func):
     @wraps(func)
     def wrapper(self, other):
         if not isinstance(other, type(self)):
-            return NotImplemented
+            return TypeError(f"{self.__class__} != {other.__class__}")
         return func(self, other)
 
     return wrapper
