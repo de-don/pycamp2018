@@ -1,6 +1,6 @@
-from functools import wraps, reduce
-from itertools import chain
 import operator
+from functools import wraps, reduce
+from itertools import chain, filterfalse
 
 
 def self_and_other_has_equal_type(func):
@@ -76,11 +76,7 @@ class Set:
     @self_and_other_has_equal_type
     def isdisjoint(self, other):
         """ Return True if two Sets have a null intersection."""
-        return reduce(operator.contains, )
-        for item in other:
-            if item in self:
-                return False
-        return True
+        return not any(map(self.__contains__, other))
 
     @self_and_other_has_equal_type
     def __eq__(self, other):
@@ -96,10 +92,7 @@ class Set:
 
     def union(self, *args):
         """ Return the union of Sets as a new Set. """
-        tmp_set = self
-        for other in args:
-            tmp_set = tmp_set | other
-        return tmp_set
+        return reduce(operator.or_, args, self)
 
     @self_and_other_has_equal_type
     def __ior__(self, other):
@@ -119,19 +112,11 @@ class Set:
 
     @self_and_other_has_equal_type
     def __and__(self, other):
-        items = []
-        for item in self:
-            if item in other:
-                items.append(item)
-
-        return Set(items)
+        return Set(filter(other.__contains__, self))
 
     def intersection(self, *args):
         """ Return the intersection of two Sets as a new Set. """
-        tmp_set = self
-        for other in args:
-            tmp_set = tmp_set & other
-        return tmp_set
+        return reduce(operator.and_, args, self)
 
     @self_and_other_has_equal_type
     def __iand__(self, other):
@@ -151,19 +136,11 @@ class Set:
 
     @self_and_other_has_equal_type
     def __sub__(self, other):
-        items = []
-        for item in self:
-            if item not in other:
-                items.append(item)
-
-        return Set(items)
+        return Set(filterfalse(other.__contains__, self))
 
     def difference(self, *args):
         """ Return the difference of two or more Sets as a new Set. """
-        tmp_set = self
-        for other in args:
-            tmp_set = tmp_set - other
-        return tmp_set
+        return reduce(operator.sub, args, self)
 
     @self_and_other_has_equal_type
     def __isub__(self, other):
@@ -187,10 +164,7 @@ class Set:
 
     def symmetric_difference(self, *args):
         """ Return the symmetric difference of two Sets as a new Set."""
-        tmp_set = self
-        for other in args:
-            tmp_set = tmp_set ^ other
-        return tmp_set
+        return reduce(operator.xor, args, self)
 
     @self_and_other_has_equal_type
     def __ixor__(self, other):
