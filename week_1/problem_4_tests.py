@@ -141,6 +141,7 @@ class TestSet(TestCase):
         q = s2.pop()
         self.assertTrue(q in s1)
         self.assertTrue(len(s2) == l - 1)
+        self.assertTrue(s2 < s1)
 
         s2.clear()
 

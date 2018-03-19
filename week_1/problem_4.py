@@ -32,34 +32,37 @@ class Set:
     ##################################################
     # comparison
     ##################################################
+    def __lt__(self, other):
+        """ all items from self contains in other, but other != self """
+        return len(self) < len(other) and all(map(other.__contains__, self))
+
+    def __le__(self, other):
+        """ all items from self contains in other"""
+        return len(self) <= len(other) and all(map(other.__contains__, self))
+
+    def __ge__(self, other):
+        return other <= self
+
+    def __gt__(self, other):
+        return other < self
+
+    def issubset(self, other):
+        """ Equal self <= other """
+        return self <= other
+
+    def issuperset(self, other):
+        """ Equal self >= other """
+        return self >= other
+
     def isdisjoint(self, other):
+        """ True if self and other not have equal items"""
         for item in other:
             if item in self:
                 return False
         return True
 
-    def __le__(self, other):
-        """ self <= other """
-        for item in self:
-            if item not in other:
-                return False
-        return True
-
-    def issubset(self, other):
-        return self <= other
-
-    def __ge__(self, other):
-        """ self >= other """
-        for item in other:
-            if item not in self:
-                return False
-        return True
-
-    def issuperset(self, other):
-        return self >= other
-
     def __eq__(self, other):
-        return self <= other <= self
+        return len(self) == len(other) and all(map(self.__contains__, other))
 
     ##################################################
     # union
