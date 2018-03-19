@@ -253,7 +253,7 @@ class TestMatrix(TestCase):
         self.assertNotEqual(id(m1), id(m2))
 
         m2 = m1 ** 0
-        self.assertEqual(m2, Matrix.ones(2))
+        self.assertEqual(m2, Matrix.even(2))
 
     def test_pow_raise(self):
         m1 = self.matrix('simple')
@@ -310,7 +310,7 @@ class TestMatrix(TestCase):
         )
 
     def test_ones(self):
-        m = Matrix.ones(3)
+        m = Matrix.even(3)
         self.assertListEqual(
             list(m),
             [[1.0, 0.0, 0.0],

@@ -102,7 +102,7 @@ class Matrix:
         return cls(rows)
 
     @classmethod
-    def ones(cls, count_rows):
+    def even(cls, count_rows):
         """ Create new diag Matrix n*n with 1 by diag and 0 whatever else.
 
         Args:
@@ -361,7 +361,7 @@ class Matrix:
             raise DimensionError
 
         if other == 0:
-            q = Matrix.ones(self.count_rows)
+            q = Matrix.even(self.count_rows)
             self.rows = q.rows
         elif other > 1:
             q = self[:, :]
