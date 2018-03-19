@@ -1,4 +1,15 @@
+from functools import wraps
 from itertools import chain
+
+
+def self_and_other_has_equal_type(func):
+    @wraps(func)
+    def wrapper(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return func(self, other)
+
+    return wrapper
 
 
 class Set:
@@ -33,28 +44,35 @@ class Set:
     ##################################################
     # comparison
     ##################################################
+    @self_and_other_has_equal_type
     def __lt__(self, other):
         """ all items from self contains in other, but other != self """
         return len(self) < len(other) and all(map(other.__contains__, self))
 
+    @self_and_other_has_equal_type
     def __le__(self, other):
         """ all items from self contains in other"""
         return len(self) <= len(other) and all(map(other.__contains__, self))
 
+    @self_and_other_has_equal_type
     def __ge__(self, other):
         return other <= self
 
+    @self_and_other_has_equal_type
     def __gt__(self, other):
         return other < self
 
+    @self_and_other_has_equal_type
     def issubset(self, other):
         """ Equal self <= other """
         return self <= other
 
+    @self_and_other_has_equal_type
     def issuperset(self, other):
         """ Equal self >= other """
         return self >= other
 
+    @self_and_other_has_equal_type
     def isdisjoint(self, other):
         """ Return True if two Sets have a null intersection."""
         for item in other:
@@ -62,6 +80,7 @@ class Set:
                 return False
         return True
 
+    @self_and_other_has_equal_type
     def __eq__(self, other):
         return len(self) == len(other) and all(map(self.__contains__, other))
 
@@ -69,6 +88,7 @@ class Set:
     # union
     ##################################################
 
+    @self_and_other_has_equal_type
     def __or__(self, other):
         return Set(chain(self, other))
 
@@ -79,6 +99,7 @@ class Set:
             s = s | other
         return s
 
+    @self_and_other_has_equal_type
     def __ior__(self, other):
         s = self | other
         self._items = s._items
@@ -94,6 +115,7 @@ class Set:
     # intersection
     ##################################################
 
+    @self_and_other_has_equal_type
     def __and__(self, other):
         items = []
         for item in self:
@@ -109,6 +131,7 @@ class Set:
             s = s & other
         return s
 
+    @self_and_other_has_equal_type
     def __iand__(self, other):
         s = self & other
         self._items = s._items
@@ -124,6 +147,7 @@ class Set:
     # difference
     ##################################################
 
+    @self_and_other_has_equal_type
     def __sub__(self, other):
         items = []
         for item in self:
@@ -139,6 +163,7 @@ class Set:
             s = s - other
         return s
 
+    @self_and_other_has_equal_type
     def __isub__(self, other):
         s = self - other
         self._items = s._items
@@ -154,6 +179,7 @@ class Set:
     # symmetric_difference
     ##################################################
 
+    @self_and_other_has_equal_type
     def __xor__(self, other):
         return (self | other) - (self & other)
 
@@ -164,6 +190,7 @@ class Set:
             s = s ^ other
         return s
 
+    @self_and_other_has_equal_type
     def __ixor__(self, other):
         s = self ^ other
         self._items = s._items

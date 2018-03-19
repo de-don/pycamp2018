@@ -8,19 +8,19 @@ class TestSet(TestCase):
     def test_init(self):
         l = [1, 2, 3]
         s = Set(l)
-        self.assertSetEqual(s, set(l))
+        self.assertListEqual(sorted(list(s)), sorted(list(set(l))))
 
         l = [1, 2, 3, 4, 4, 3]
         s = Set(l)
-        self.assertSetEqual(s, set(l))
+        self.assertListEqual(sorted(list(s)), sorted(list(set(l))))
 
         l = [1, 1, 1]
         s = Set(l)
-        self.assertSetEqual(s, set(l))
+        self.assertListEqual(sorted(list(s)), sorted(list(set(l))))
 
         l = []
         s = Set(l)
-        self.assertSetEqual(s, set(l))
+        self.assertListEqual(sorted(list(s)), sorted(list(set(l))))
 
         with self.assertRaises(TypeError):
             Set(1)
@@ -137,10 +137,10 @@ class TestSet(TestCase):
         s2.discard(5)
         s2 = s1.copy()
 
-        l = len(s2)
+        len_s2 = len(s2)
         q = s2.pop()
         self.assertTrue(q in s1)
-        self.assertTrue(len(s2) == l - 1)
+        self.assertTrue(len(s2) == len_s2 - 1)
         self.assertTrue(s2 < s1)
         self.assertFalse(s2 > s1)
 
@@ -148,3 +148,9 @@ class TestSet(TestCase):
 
         with self.assertRaises(KeyError):
             s2.pop()
+
+    def test_some_types(self):
+        s1 = Set([1, 2, 3, 4])
+
+        with self.assertRaises(TypeError):
+            s1 | [2, 3]
