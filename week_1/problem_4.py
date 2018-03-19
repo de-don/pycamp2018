@@ -102,7 +102,7 @@ class Set:
             s = s & other
         return s
 
-    def __iadd__(self, other):
+    def __iand__(self, other):
         s = self & other
         self._items = s._items
         return self
