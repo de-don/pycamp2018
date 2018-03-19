@@ -103,3 +103,6 @@ class Set:
         for other in args:
             s = s ^ other
         return s
+
+    def copy(self):
+        return Set(self)

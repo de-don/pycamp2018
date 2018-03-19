@@ -91,3 +91,9 @@ class TestSet(TestCase):
         s4 = s1.symmetric_difference(s2, s3)
 
         self.assertSetEqual(s4, Set([1, 3, 4, 6, 7, 8, 11]))
+
+    def test_copy(self):
+        s1 = Set([1, 5, -1, 2, 3, 5, -5])
+        s2 = s1.copy()
+        self.assertSetEqual(s1, s2)
+        self.assertNotEqual(id(s1), id(s2))
