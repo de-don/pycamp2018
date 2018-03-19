@@ -72,6 +72,7 @@ class TestMatrix(TestCase):
              [4.0, 5.0, 6.0]],
         )
         self.assertEqual(m[1, 1], 5.0)
+        self.assertEqual(m[1:1, 0], None)
         self.assertListEqual(
             list(m[0:2, 0:2]),
             [[1.0, 2.0],
@@ -90,12 +91,18 @@ class TestMatrix(TestCase):
              [3.0, 2.0, 1.0]],
         )
 
-    def test_slice_reise(self):
+    def test_slice_raise(self):
         m1 = self.matrix('simple')
         with self.assertRaises(TypeError):
-            m1 = m1[1, 1, 1]
+            m1[1, 1, 1]
         with self.assertRaises(TypeError):
             m1['ser']
+        with self.assertRaises(TypeError):
+            m1[.1]
+        with self.assertRaises(TypeError):
+            m1[.1:.1]
+        with self.assertRaises(TypeError):
+            m1[1, .1]
 
     def test_none(self):
         m = Matrix()
@@ -244,6 +251,9 @@ class TestMatrix(TestCase):
         m2 = m1 ** 2
         self.assertEqual(m1 ** 3, m1 @ m1 @ m1)
         self.assertNotEqual(id(m1), id(m2))
+
+        m2 = m1 ** 0
+        self.assertEqual(m2, Matrix.ones(2))
 
     def test_pow_raise(self):
         m1 = self.matrix('simple')

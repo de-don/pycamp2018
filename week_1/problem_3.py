@@ -25,13 +25,9 @@ def split_2d_slice(item):
         elif len(item) == 2:
             return item
         else:
-            raise TypeError('Slice must be int, slice, or tuple of them')
+            raise TypeError('Ltn of tuple for slice must be 1 or 2!')
     else:
-        if isinstance(item, slice) or isinstance(item, Integral):
-            return item, None
-        else:
-            raise TypeError('Slice must be int, slice, or tuple of them')
-
+        return item, None
 
 class Matrix:
     """ Matrix class. Support many matrix-operations
@@ -157,6 +153,8 @@ class Matrix:
                 tmp = [tmp[h]]
             elif isinstance(h, slice):
                 tmp = tmp[h]
+            else:
+                raise TypeError('Slice must be int, slice, or tuple of them')
 
         # vertical slice, if exists
         if (v is not None) and tmp:
@@ -164,6 +162,8 @@ class Matrix:
                 tmp = [[row[v]] for row in tmp]
             elif isinstance(v, slice):
                 tmp = [row[v] for row in tmp]
+            else:
+                raise TypeError('Slice must be int, slice, or tuple of them')
 
         # create matrix from slice
         matr = Matrix(*tmp)
@@ -172,7 +172,6 @@ class Matrix:
         if isinstance(h, Integral) and isinstance(v, Integral):
             if matr.size == (1, 1):
                 return matr.rows[0][0]
-            return None
 
         if matr.n == 0 or matr.m == 0:
             return None
