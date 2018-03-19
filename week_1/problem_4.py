@@ -94,3 +94,12 @@ class Set:
         for other in args:
             s = s - other
         return s
+
+    def __xor__(self, other):
+        return (self | other) - (self & other)
+
+    def symmetric_difference(self, *args):
+        s = self
+        for other in args:
+            s = s ^ other
+        return s

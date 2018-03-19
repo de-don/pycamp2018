@@ -5,28 +5,22 @@ from .problem_4 import Set
 
 class TestSet(TestCase):
 
-    def assertIterEqual(self, iterable1, iterable2, msg=None):
-        l1 = list(iterable1)
-        l2 = list(iterable2)
-
-        self.assertListEqual(l1, l2, msg)
-
     def test_init(self):
         l = [1, 2, 3]
         s = Set(l)
-        self.assertIterEqual(s, l)
+        self.assertSetEqual(s, set(l))
 
         l = [1, 2, 3, 4, 4, 3]
         s = Set(l)
-        self.assertIterEqual(s, set(l))
+        self.assertSetEqual(s, set(l))
 
         l = [1, 1, 1]
         s = Set(l)
-        self.assertIterEqual(s, set(l))
+        self.assertSetEqual(s, set(l))
 
         l = []
         s = Set(l)
-        self.assertIterEqual(s, set(l))
+        self.assertSetEqual(s, set(l))
 
         with self.assertRaises(TypeError):
             Set(1)
@@ -55,8 +49,8 @@ class TestSet(TestCase):
         s2 = Set((3, 4, 5))
         s3 = Set([7, 9])
 
-        self.assertIterEqual(s1.union(s2), Set((1, 2, 3, 4, 5)))
-        self.assertIterEqual(s1.union(s2, s3), Set((1, 2, 3, 4, 5, 7, 9)))
+        self.assertSetEqual(s1.union(s2), Set((1, 2, 3, 4, 5)))
+        self.assertSetEqual(s1.union(s2, s3), Set((1, 2, 3, 4, 5, 7, 9)))
 
     def test_operations_isdisjoint(self):
         s1 = Set((1, 2, 3))
@@ -71,13 +65,29 @@ class TestSet(TestCase):
         s2 = Set((3, 2, 5))
         s3 = Set([7, 9])
 
-        self.assertIterEqual(s1.intersection(s2), Set((2, 3)))
-        self.assertIterEqual(s1.intersection(s2, s3), Set())
+        self.assertSetEqual(s1.intersection(s2), Set((2, 3)))
+        self.assertSetEqual(s1.intersection(s2, s3), Set())
 
     def test_operations_difference(self):
         s1 = Set((1, 2, 3))
         s2 = Set((3, 5))
         s3 = Set([1])
 
-        self.assertIterEqual(s1.difference(s2), Set((1, 2)))
-        self.assertIterEqual(s1.difference(s2, s3), Set((2,)))
+        self.assertSetEqual(s1.difference(s2), Set((1, 2)))
+        self.assertSetEqual(s1.difference(s2, s3), Set((2,)))
+
+    def test_operations_symmetric_difference(self):
+        s1 = Set((1, 2, 3))
+        s2 = Set((3, 5))
+        self.assertSetEqual(s1 ^ s2, Set((1, 2, 5)))
+
+        s1 = Set((1, 2))
+        s2 = Set((1, 2))
+        self.assertSetEqual(s1 ^ s2, Set())
+
+        s1 = Set((1, 2, 3, 4, 5))
+        s2 = Set((2, 5, 9, 11))
+        s3 = Set((6, 7, 8, 9))
+        s4 = s1.symmetric_difference(s2, s3)
+
+        self.assertSetEqual(s4, Set([1, 3, 4, 6, 7, 8, 11]))
