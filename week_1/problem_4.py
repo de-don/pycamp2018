@@ -30,7 +30,7 @@ class Set:
         return item in self._items
 
     ##################################################
-    # operations
+    # comparison
     ##################################################
     def isdisjoint(self, other):
         for item in other:
@@ -163,5 +163,35 @@ class Set:
         self._items = s._items
         return self
 
+    ##################################################
+    # other methods
+    ##################################################
+
     def copy(self):
         return Set(self)
+
+    def add(self, item):
+        if item not in self:
+            self._items.append(item)
+
+    def remove(self, item):
+        if item not in self._items:
+            raise KeyError(item)
+
+        self._items.remove(item)
+
+    def discard(self, item):
+        try:
+            self.remove(item)
+        except KeyError:
+            pass
+
+    def pop(self):
+        try:
+            q = self._items.pop()
+        except IndexError:
+            raise KeyError('pop from an empty Set')
+        return q
+
+    def clear(self):
+        self._items.clear()

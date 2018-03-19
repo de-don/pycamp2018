@@ -118,3 +118,31 @@ class TestSet(TestCase):
         s2 = s1.copy()
         self.assertSetEqual(s1, s2)
         self.assertNotEqual(id(s1), id(s2))
+
+    def test_other_methods(self):
+        s1 = Set([1, 2, 3, 4, 5])
+        s2 = s1.copy()
+
+        s2.add(5)
+        self.assertSetEqual(s2, s1)
+        s2.add(6)
+        self.assertSetEqual(s2, s1 | Set([6]))
+
+        s2.remove(6)
+        self.assertSetEqual(s1, s2)
+        with self.assertRaises(KeyError):
+            s2.remove(6)
+
+        s2.discard(6)
+        s2.discard(5)
+        s2 = s1.copy()
+
+        l = len(s2)
+        q = s2.pop()
+        self.assertTrue(q in s1)
+        self.assertTrue(len(s2) == l - 1)
+
+        s2.clear()
+
+        with self.assertRaises(KeyError):
+            s2.pop()
