@@ -237,7 +237,8 @@ class Matrix:
         """ Return new matrix when: new_item = -old_item """
         tmp_matrix = self[:, :]
         for i in range(self.count_rows):
-            tmp_matrix.rows[i] = array('f', (-tmp_matrix.rows[i][j] for j in range(self.count_cols)))
+            row = (-tmp_matrix.rows[i][j] for j in range(self.count_cols))
+            tmp_matrix.rows[i] = array('f', row)
 
         return tmp_matrix
 
@@ -266,7 +267,10 @@ class Matrix:
 
     def __eq__(self, other):
         """ Compare matrix. Two matrix is equal if equal each item's pair """
-        return all((self.rows[i] == other.rows[i] for i in range(self.count_rows)))
+        return all(
+            self.rows[row_num] == other.rows[row_num]
+            for row_num in range(self.count_rows)
+        )
 
     ##################################################
     # Mul methods
@@ -322,11 +326,17 @@ class Matrix:
         if self.count_cols != other.count_rows:
             raise DimensionError
 
-        tmp_rows = [array('f', [0] * other.count_cols) for _ in range(self.count_rows)]
+        tmp_rows = [
+            array('f', [0] * other.count_cols)
+            for _ in range(self.count_rows)
+        ]
 
         for i in range(self.count_rows):
             for j in range(other.count_cols):
-                q = (self.rows[i][k] * other.rows[k][j] for k in range(self.count_cols))
+                q = (
+                    self.rows[i][k] * other.rows[k][j]
+                    for k in range(self.count_cols)
+                )
                 tmp_rows[i][j] = sum(q)
 
         self.rows = tmp_rows
