@@ -74,6 +74,10 @@ class TestSet(TestCase):
 
         self.assertSetEqual(s1.intersection(s2), Set((2, 3)))
         self.assertSetEqual(s1.intersection(s2, s3), Set())
+        s1.intersection_update(s2)
+        self.assertSetEqual(s1, Set((2, 3)))
+        s2 &= Set([2, 3])
+        self.assertSetEqual(s1, Set([2, 3]))
 
     def test_operations_difference(self):
         s1 = Set((1, 2, 3))

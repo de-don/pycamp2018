@@ -102,6 +102,20 @@ class Set:
             s = s & other
         return s
 
+    def __iadd__(self, other):
+        s = self & other
+        self._items = s._items
+        return self
+
+    def intersection_update(self, *args):
+        s = self.intersection(*args)
+        self._items = s._items
+        return self
+
+    ##################################################
+    # difference
+    ##################################################
+
     def __sub__(self, other):
         items = []
         for item in self:
