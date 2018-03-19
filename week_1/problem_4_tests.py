@@ -49,8 +49,15 @@ class TestSet(TestCase):
         s2 = Set((3, 4, 5))
         s3 = Set([7, 9])
 
-        self.assertSetEqual(s1.union(s2), Set((1, 2, 3, 4, 5)))
-        self.assertSetEqual(s1.union(s2, s3), Set((1, 2, 3, 4, 5, 7, 9)))
+        s4 = Set((1, 2, 3, 4, 5))
+        s5 = Set((1, 2, 3, 4, 5, 7, 9))
+
+        self.assertSetEqual(s1.union(s2), s4)
+        self.assertSetEqual(s1.union(s2, s3), s5)
+        s1.update(s2, s3)
+        self.assertSetEqual(s1, s5)
+        s2 |= s3
+        self.assertNotEqual(s2, Set((3, 4, 5)))
 
     def test_operations_isdisjoint(self):
         s1 = Set((1, 2, 3))

@@ -29,6 +29,9 @@ class Set:
     def __contains__(self, item):
         return item in self._items
 
+    ##################################################
+    # operations
+    ##################################################
     def isdisjoint(self, other):
         for item in other:
             if item in self:
@@ -57,7 +60,11 @@ class Set:
 
     def __eq__(self, other):
         return self <= other <= self
-
+    
+    ##################################################
+    # union
+    ##################################################
+    
     def __or__(self, other):
         return Set(chain(self, other))
 
@@ -66,6 +73,20 @@ class Set:
         for other in args:
             s = s | other
         return s
+    
+    def __ior__(self, other):
+        s = self | other
+        self._items = s._items
+        return self
+    
+    def update(self, *args):
+        s = self.union(*args)
+        self._items = s._items
+        return self
+    
+    ##################################################
+    # intersection
+    ##################################################
 
     def __and__(self, other):
         items = []
