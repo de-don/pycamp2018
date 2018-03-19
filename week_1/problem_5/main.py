@@ -1,21 +1,28 @@
-
 class SimpleDict:
-    def __init__(self, input_dict):
-        self.__values = dict()
-        for key, value in input_dict.items():
-            if isinstance(value, dict):
-                value = SimpleDict(value)
+    """ Class for store dict and access to keys from attribute"""
 
-            self.__values[key] = value
+    def __init__(self, input_dict):
+        cls = self.__class__
+        for key, value in input_dict.items():
+            # if value is dict, create new instance
+            if isinstance(value, dict):
+                value = cls(value)
+            # save key:value
+            self.__dict__[key] = value
 
     def __setattr__(self, key, value):
-        if key != '_SimpleDict__values':
-            if key in self.__values:
-                raise PermissionError
-            raise KeyError
-        super().__setattr__(key, value)
+        """ Disable access to edit attributes """
+        raise PermissionError
 
     def __getattr__(self, item):
-        if item not in self.__values:
-            raise KeyError
-        return self.__values[item]
+        raise KeyError(f'Key {item} not found in dict')
+
+    def __delattr__(self, item):
+        raise PermissionError
+
+
+class EditableDict(SimpleDict):
+    def __setattr__(self, key, value):
+        if key not in self.__dict__:
+            super().__setattr__(key, value)
+        self.__dict__[key] = value
