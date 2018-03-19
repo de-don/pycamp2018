@@ -235,7 +235,7 @@ class Matrix:
 
     def __neg__(self):
         """ Return new matrix when: new_item = -old_item """
-        return self*(-1)
+        return self * (-1)
 
     def __pos__(self):
         return self[:, :]
@@ -362,7 +362,7 @@ class Matrix:
             q = self[:, :]
             for i in range(other - 1):
                 self @= q
-        elif other<0:
+        elif other < 0:
             raise ValueError("Power can't be negative.")
 
         return self

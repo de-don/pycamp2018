@@ -76,6 +76,7 @@ class Set:
     @self_and_other_has_equal_type
     def isdisjoint(self, other):
         """ Return True if two Sets have a null intersection."""
+        return reduce(operator.contains, )
         for item in other:
             if item in self:
                 return False
