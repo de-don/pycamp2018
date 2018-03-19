@@ -15,7 +15,7 @@ def self_and_other_has_equal_type(func):
 
 class Set:
     """ Create collection which consist unique elements."""
-    _items = None
+    __slots__ = ('_items',)
 
     def __init__(self, iterable=None):
         items = list()
