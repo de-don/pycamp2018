@@ -29,11 +29,11 @@ def split_2d_slice(item):
     else:
         return item, None
 
+
 class Matrix:
-    """ Matrix class. Support many matrix-operations
-    """
+    """ Matrix class. Support many matrix-operations """
     rows = None
-    n, m = 0, 0  # count rows and cols
+    count_rows, count_cols = 0, 0  # count rows and cols
     precision = 1  # precision for output
 
     def __init__(self, *args, precision=1):
@@ -52,11 +52,11 @@ class Matrix:
         self.precision = precision
         rows = [array('f', row) for row in args]
 
-        self.n = len(rows)
-        self.m = max(map(len, rows), default=0)
+        self.count_rows = len(rows)
+        self.count_cols = max(map(len, rows), default=0)
 
         # checking dimension
-        if self.m != min(map(len, rows), default=0):
+        if self.count_cols != min(map(len, rows), default=0):
             raise DimensionError
 
         self.rows = rows
@@ -64,7 +64,7 @@ class Matrix:
     @property
     def size(self):
         """ Property which return size or matrix """
-        return self.n, self.m
+        return self.count_rows, self.count_cols
 
     @property
     def T(self):
@@ -80,117 +80,124 @@ class Matrix:
     @property
     def range_n(self):
         """ Equal to range(self.n) """
-        return range(self.n)
+        return range(self.count_rows)
 
     @property
     def range_m(self):
         """ Equal to range(self.m) """
-        return range(self.m)
+        return range(self.count_cols)
 
     @classmethod
-    def zeros(cls, n, m):
+    def zeros(cls, count_rows, count_cols):
         """ Create new Matrix n*m which contain from zeros
 
         Args:
-            n(int): count rows
-            m(int): count cols
+            count_rows(int): count rows
+            count_cols(int): count cols
 
         Returns:
             Matrix: matrix n*m from zeros
         """
 
-        rows = [(0 for _ in range(m)) for _ in range(n)]
+        rows = [(0 for _ in range(count_cols)) for _ in range(count_rows)]
         return cls(*rows)
 
     @classmethod
-    def ones(cls, n):
+    def ones(cls, count_rows):
         """ Create new diag Matrix n*n with 1 by diag and 0 whatever else.
 
         Args:
-            n(int): count rows and cols
+            count_rows(int): count rows and cols
 
         Returns:
             Matrix: E-matrix n*m
         """
 
-        rows = [[i == j for j in range(n)] for i in range(n)]
+        rows = [[i == j for j in range(count_rows)] for i in range(count_rows)]
         return cls(*rows)
 
     def __str__(self):
-        s = f'[Matrix {self.n}x{self.m}]\n'
-        s += repr(self)
-        return s
+        text = f'[Matrix {self.count_rows}x{self.count_cols}]\n'
+        text += repr(self)
+        return text
 
     def __repr__(self):
         def len_fmt(x):
             return len(f'{x: ,.{self.precision}f}')
 
+        # calculate maximum len in each column.
         max_len_in_col = []
-        for i in self.range_m:
-            q = 0
-            for j in self.range_n:
-                q = max(q, len_fmt(self.rows[j][i]) + (i != 0))
-            max_len_in_col.append(q)
+        for num_col in self.range_m:
+            max_len = 0
+            for num_row in self.range_n:
+                # calc len current cell and compare it with max_len
+                current_len = len_fmt(self.rows[num_row][num_col])
+                max_len = max(max_len, current_len + (num_col != 0))
 
+            max_len_in_col.append(max_len)
+
+        # create lines of matrix
         lines = []
-        for i in self.range_n:
-            q = []
-            for j in self.range_m:
-                x = self.rows[i][j]
-                q.append(f'{x:> #{max_len_in_col[j]},.{self.precision}f}')
-            lines.append(''.join(q))
+        for num_row in self.range_n:
+            cells = []
+            for num_col in self.range_m:
+                cell = self.rows[num_row][num_col]
+                width = max_len_in_col[num_col]
+                cells.append(f'{cell:> #{width},.{self.precision}f}')
+            lines.append(''.join(cells))
+
         return '\n'.join(map(str.rstrip, lines))
 
     def __getitem__(self, item):
         # get horizontal and vertical slices
-        h, v = split_2d_slice(item)
+        h_slice, v_slice = split_2d_slice(item)
 
-        tmp = list(self)
+        tmp_matrix = list(self)
 
         # horizontal slice, if exists
-        if h is not None:
-            if isinstance(h, Integral):
-                tmp = [tmp[h]]
-            elif isinstance(h, slice):
-                tmp = tmp[h]
+        if h_slice is not None:
+            if isinstance(h_slice, Integral):
+                tmp_matrix = [tmp_matrix[h_slice]]
+            elif isinstance(h_slice, slice):
+                tmp_matrix = tmp_matrix[h_slice]
             else:
                 raise TypeError('Slice must be int, slice, or tuple of them')
 
         # vertical slice, if exists
-        if (v is not None) and tmp:
-            if isinstance(v, Integral):
-                tmp = [[row[v]] for row in tmp]
-            elif isinstance(v, slice):
-                tmp = [row[v] for row in tmp]
+        if (v_slice is not None) and tmp_matrix:
+            if isinstance(v_slice, Integral):
+                tmp_matrix = [[row[v_slice]] for row in tmp_matrix]
+            elif isinstance(v_slice, slice):
+                tmp_matrix = [row[v_slice] for row in tmp_matrix]
             else:
                 raise TypeError('Slice must be int, slice, or tuple of them')
 
         # create matrix from slice
-        matr = Matrix(*tmp)
+        matr = Matrix(*tmp_matrix)
 
         # If need return one number
-        if isinstance(h, Integral) and isinstance(v, Integral):
+        if isinstance(h_slice, Integral) and isinstance(v_slice, Integral):
             if matr.size == (1, 1):
                 return matr.rows[0][0]
 
-        if matr.n == 0 or matr.m == 0:
+        if matr.count_rows == 0 or matr.count_cols == 0:
             return None
 
         return matr
 
     def __setitem__(self, key, value):
-        h, v = split_2d_slice(key)
+        h_slice, v_slice = split_2d_slice(key)
 
-        if isinstance(value, Real) and isinstance(h, Integral) \
-                and isinstance(v, Integral):
-            self.rows[h][v] = value
-        elif isinstance(value, Iterable) and isinstance(h, Integral) \
-                and v is None:
+        if isinstance(value, Real) and isinstance(h_slice, Integral) \
+                and isinstance(v_slice, Integral):
+            self.rows[h_slice][v_slice] = value
+        elif isinstance(value, Iterable) and isinstance(h_slice, Integral) \
+                and v_slice is None:
             row = array('f', value)
-            if len(row) != self.m:
+            if len(row) != self.count_cols:
                 raise DimensionError
 
-            self.rows[h] = array('f', value)
+            self.rows[h_slice] = array('f', value)
         else:
             raise TypeError
 
@@ -202,9 +209,9 @@ class Matrix:
     ##################################################
 
     def __add__(self, other):
-        tmp = self[:, :]
-        tmp += other
-        return tmp
+        tmp_matrix = self[:, :]
+        tmp_matrix += other
+        return tmp_matrix
 
     def __radd__(self, other):
         return self + other
@@ -215,9 +222,9 @@ class Matrix:
             if self.size != other.size:
                 raise DimensionError
 
-            for i in self.range_n:
-                for j in self.range_m:
-                    self.rows[i][j] += other.rows[i][j]
+            for num_row in self.range_n:
+                for num_col in self.range_m:
+                    self.rows[num_row][num_col] += other.rows[num_row][num_col]
 
             return self
         else:
@@ -229,11 +236,11 @@ class Matrix:
 
     def __neg__(self):
         """ Return new matrix when: new_item = -old_item """
-        tmp = self[:, :]
+        tmp_matrix = self[:, :]
         for i in self.range_n:
-            tmp.rows[i] = array('f', (-tmp.rows[i][j] for j in self.range_m))
+            tmp_matrix.rows[i] = array('f', (-tmp_matrix.rows[i][j] for j in self.range_m))
 
-        return tmp
+        return tmp_matrix
 
     def __pos__(self):
         return self[:, :]
@@ -243,9 +250,9 @@ class Matrix:
     ##################################################
 
     def __sub__(self, other):
-        tmp = self[:, :]
-        tmp -= other
-        return tmp
+        tmp_matrix = self[:, :]
+        tmp_matrix -= other
+        return tmp_matrix
 
     def __rsub__(self, other):
         return (-self) + other
@@ -276,9 +283,9 @@ class Matrix:
             Matrix: return new Matrix
 
         """
-        tmp = self[:, :]
-        tmp *= other
-        return tmp
+        tmp_matrix = self[:, :]
+        tmp_matrix *= other
+        return tmp_matrix
 
     def __rmul__(self, other):
         return self * other
@@ -304,27 +311,27 @@ class Matrix:
     ##################################################
 
     def __matmul__(self, other):
-        tmp = self[:, :]
-        tmp @= other
-        return tmp
+        tmp_matrix = self[:, :]
+        tmp_matrix @= other
+        return tmp_matrix
 
     def __imatmul__(self, other):
         """ Mul first matrix on second matrix by math rules. """
         if not isinstance(other, Matrix):
             raise TypeError
 
-        if self.m != other.n:
+        if self.count_cols != other.count_rows:
             raise DimensionError
 
-        tmp = [array('f', [0] * other.m) for _ in self.range_n]
+        tmp_rows = [array('f', [0] * other.count_cols) for _ in self.range_n]
 
         for i in self.range_n:
-            for j in range(other.m):
+            for j in range(other.count_cols):
                 q = (self.rows[i][k] * other.rows[k][j] for k in self.range_m)
-                tmp[i][j] = sum(q)
+                tmp_rows[i][j] = sum(q)
 
-        self.rows = tmp
-        self.m = other.m
+        self.rows = tmp_rows
+        self.count_cols = other.count_cols
         return self
 
     ##################################################
@@ -332,20 +339,20 @@ class Matrix:
     ##################################################
 
     def __pow__(self, other):
-        tmp = self[:, :]
-        tmp **= other
-        return tmp
+        tmp_matrix = self[:, :]
+        tmp_matrix **= other
+        return tmp_matrix
 
     def __ipow__(self, other):
         """ Mul matrix on itself other times """
         if not isinstance(other, Integral):
             raise TypeError
 
-        if self.n != self.m:
+        if self.count_rows != self.count_cols:
             raise DimensionError
 
         if other == 0:
-            q = Matrix.ones(self.n)
+            q = Matrix.ones(self.count_rows)
             self.rows = q.rows
         elif other > 1:
             q = self[:, :]
