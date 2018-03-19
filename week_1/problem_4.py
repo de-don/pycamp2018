@@ -140,6 +140,10 @@ class Set:
         self._items = s._items
         return self
 
+    ##################################################
+    # symmetric_difference
+    ##################################################
+
     def __xor__(self, other):
         return (self | other) - (self & other)
 
@@ -148,6 +152,16 @@ class Set:
         for other in args:
             s = s ^ other
         return s
+
+    def __ixor__(self, other):
+        s = self ^ other
+        self._items = s._items
+        return self
+
+    def symmetric_difference_update(self, *args):
+        s = self.symmetric_difference(*args)
+        self._items = s._items
+        return self
 
     def copy(self):
         return Set(self)

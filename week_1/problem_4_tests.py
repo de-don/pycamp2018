@@ -108,6 +108,11 @@ class TestSet(TestCase):
 
         self.assertSetEqual(s4, Set([1, 3, 4, 6, 7, 8, 11]))
 
+        s1.symmetric_difference_update(s2, s3)
+        self.assertSetEqual(s1, Set([1, 3, 4, 6, 7, 8, 11]))
+        s2 ^= s3
+        self.assertSetEqual(s2, Set([2, 5, 11, 6, 7, 8]))
+
     def test_copy(self):
         s1 = Set([1, 5, -1, 2, 3, 5, -5])
         s2 = s1.copy()
