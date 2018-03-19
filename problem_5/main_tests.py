@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from week_1.problem_5.main import SimpleDict, EditableDict
+from problem_5.main import SimpleDict, EditableDict
 
 dict_1 = {'name': 'Denis', 'age': 22}
 dict_2 = {
