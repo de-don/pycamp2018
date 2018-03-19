@@ -2,6 +2,7 @@ from itertools import chain
 
 
 class Set:
+    """ Create collection which consist unique elements."""
     _items = None
 
     def __init__(self, iterable=None):
@@ -55,7 +56,7 @@ class Set:
         return self >= other
 
     def isdisjoint(self, other):
-        """ True if self and other not have equal items"""
+        """ Return True if two Sets have a null intersection."""
         for item in other:
             if item in self:
                 return False
@@ -72,6 +73,7 @@ class Set:
         return Set(chain(self, other))
 
     def union(self, *args):
+        """ Return the union of Sets as a new Set. """
         s = self
         for other in args:
             s = s | other
@@ -83,6 +85,7 @@ class Set:
         return self
 
     def update(self, *args):
+        """ Update a Set with the union of itself and others. """
         s = self.union(*args)
         self._items = s._items
         return self
@@ -100,6 +103,7 @@ class Set:
         return Set(items)
 
     def intersection(self, *args):
+        """ Return the intersection of two Sets as a new Set. """
         s = self
         for other in args:
             s = s & other
@@ -111,6 +115,7 @@ class Set:
         return self
 
     def intersection_update(self, *args):
+        """ Update a Set with the intersection of itself and another."""
         s = self.intersection(*args)
         self._items = s._items
         return self
@@ -128,6 +133,7 @@ class Set:
         return Set(items)
 
     def difference(self, *args):
+        """ Return the difference of two or more Sets as a new Set. """
         s = self
         for other in args:
             s = s - other
@@ -139,6 +145,7 @@ class Set:
         return self
 
     def difference_update(self, *args):
+        """ Remove all elements of another Set from this Set. """
         s = self.difference(*args)
         self._items = s._items
         return self
@@ -151,6 +158,7 @@ class Set:
         return (self | other) - (self & other)
 
     def symmetric_difference(self, *args):
+        """ Return the symmetric difference of two Sets as a new Set."""
         s = self
         for other in args:
             s = s ^ other
@@ -162,6 +170,7 @@ class Set:
         return self
 
     def symmetric_difference_update(self, *args):
+        """ Update a Set with the symmetric diff. of itself and another."""
         s = self.symmetric_difference(*args)
         self._items = s._items
         return self
@@ -171,25 +180,39 @@ class Set:
     ##################################################
 
     def copy(self):
+        """ Return a copy of a Set. """
         return Set(self)
 
     def add(self, item):
+        """ Add an item to a Set
+
+        This is not change Set, if it's already contain an item.
+        """
         if item not in self:
             self._items.append(item)
 
     def remove(self, item):
+        """ Remove item from Set.
+
+        Raises KeyError if an item not contains in Set.
+        """
         if item not in self._items:
             raise KeyError(item)
 
         self._items.remove(item)
 
     def discard(self, item):
+        """ Remove an item from a Set if it is a member, else nothing."""
         try:
             self.remove(item)
         except KeyError:
             pass
 
     def pop(self):
+        """ Remove and return an element from Set.
+
+        Raises KeyError if the Set is empty.
+        """
         try:
             q = self._items.pop()
         except IndexError:
@@ -197,4 +220,5 @@ class Set:
         return q
 
     def clear(self):
+        """ Remove all elements from this Set. """
         self._items.clear()
