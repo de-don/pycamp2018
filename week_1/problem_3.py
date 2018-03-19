@@ -362,4 +362,7 @@ class Matrix:
             q = self[:, :]
             for i in range(other - 1):
                 self @= q
+        elif other<0:
+            raise ValueError("Power can't be negative.")
+
         return self
