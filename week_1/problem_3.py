@@ -36,11 +36,11 @@ class Matrix:
     count_rows, count_cols = 0, 0  # count rows and cols
     precision = 1  # precision for output
 
-    def __init__(self, *args, precision=1):
+    def __init__(self, iterable=None, precision=1):
         """ Init function which create matrix from args.
 
         Args:
-            *args(Iterable): iter of iterable objects, every object must
+            iterable(Iterable): iter of iterable objects, every object must
                 be number (float or int)
             precision(int): precision for printing.
 
@@ -50,7 +50,10 @@ class Matrix:
         """
 
         self.precision = precision
-        rows = [array('f', row) for row in args]
+        if iterable:
+            rows = [array('f', row) for row in iterable]
+        else:
+            rows = []
 
         self.count_rows = len(rows)
         self.count_cols = max(map(len, rows), default=0)
@@ -74,33 +77,29 @@ class Matrix:
             Matrix: transposed matrix
         """
 
-        tmp = [[self.rows[j][i] for j in self.range_n] for i in self.range_m]
-        return Matrix(*tmp)
-
-    @property
-    def range_n(self):
-        """ Equal to range(self.n) """
-        return range(self.count_rows)
-
-    @property
-    def range_m(self):
-        """ Equal to range(self.m) """
-        return range(self.count_cols)
+        tmp = (
+            (
+                self.rows[num_row][num_col]
+                for num_row in range(self.count_rows)
+            )
+            for num_col in range(self.count_cols)
+        )
+        return Matrix(tmp)
 
     @classmethod
     def zeros(cls, count_rows, count_cols):
-        """ Create new Matrix n*m which contain from zeros
+        """ Create new Matrix count_rows*count_cols which contain from zeros
 
         Args:
             count_rows(int): count rows
             count_cols(int): count cols
 
         Returns:
-            Matrix: matrix n*m from zeros
+            Matrix: matrix count_rows*count_cols from zeros
         """
 
-        rows = [(0 for _ in range(count_cols)) for _ in range(count_rows)]
-        return cls(*rows)
+        rows = ((0 for _ in range(count_cols)) for _ in range(count_rows))
+        return cls(rows)
 
     @classmethod
     def ones(cls, count_rows):
@@ -110,11 +109,11 @@ class Matrix:
             count_rows(int): count rows and cols
 
         Returns:
-            Matrix: E-matrix n*m
+            Matrix: E-matrix count_rows*count_cols
         """
 
-        rows = [[i == j for j in range(count_rows)] for i in range(count_rows)]
-        return cls(*rows)
+        rows = ((i == j for j in range(count_rows)) for i in range(count_rows))
+        return cls(rows)
 
     def __str__(self):
         text = f'[Matrix {self.count_rows}x{self.count_cols}]\n'
@@ -127,9 +126,9 @@ class Matrix:
 
         # calculate maximum len in each column.
         max_len_in_col = []
-        for num_col in self.range_m:
+        for num_col in range(self.count_cols):
             max_len = 0
-            for num_row in self.range_n:
+            for num_row in range(self.count_rows):
                 # calc len current cell and compare it with max_len
                 current_len = len_fmt(self.rows[num_row][num_col])
                 max_len = max(max_len, current_len + (num_col != 0))
@@ -138,9 +137,9 @@ class Matrix:
 
         # create lines of matrix
         lines = []
-        for num_row in self.range_n:
+        for num_row in range(self.count_rows):
             cells = []
-            for num_col in self.range_m:
+            for num_col in range(self.count_cols):
                 cell = self.rows[num_row][num_col]
                 width = max_len_in_col[num_col]
                 cells.append(f'{cell:> #{width},.{self.precision}f}')
@@ -157,7 +156,7 @@ class Matrix:
         # horizontal slice, if exists
         if h_slice is not None:
             if isinstance(h_slice, Integral):
-                tmp_matrix = [tmp_matrix[h_slice]]
+                tmp_matrix = (tmp_matrix[h_slice],)
             elif isinstance(h_slice, slice):
                 tmp_matrix = tmp_matrix[h_slice]
             else:
@@ -166,14 +165,14 @@ class Matrix:
         # vertical slice, if exists
         if (v_slice is not None) and tmp_matrix:
             if isinstance(v_slice, Integral):
-                tmp_matrix = [[row[v_slice]] for row in tmp_matrix]
+                tmp_matrix = ((row[v_slice],) for row in tmp_matrix)
             elif isinstance(v_slice, slice):
-                tmp_matrix = [row[v_slice] for row in tmp_matrix]
+                tmp_matrix = (row[v_slice] for row in tmp_matrix)
             else:
                 raise TypeError('Slice must be int, slice, or tuple of them')
 
         # create matrix from slice
-        matr = Matrix(*tmp_matrix)
+        matr = Matrix(tmp_matrix)
 
         # If need return one number
         if isinstance(h_slice, Integral) and isinstance(v_slice, Integral):
@@ -222,8 +221,8 @@ class Matrix:
             if self.size != other.size:
                 raise DimensionError
 
-            for num_row in self.range_n:
-                for num_col in self.range_m:
+            for num_row in range(self.count_rows):
+                for num_col in range(self.count_cols):
                     self.rows[num_row][num_col] += other.rows[num_row][num_col]
 
             return self
@@ -237,8 +236,8 @@ class Matrix:
     def __neg__(self):
         """ Return new matrix when: new_item = -old_item """
         tmp_matrix = self[:, :]
-        for i in self.range_n:
-            tmp_matrix.rows[i] = array('f', (-tmp_matrix.rows[i][j] for j in self.range_m))
+        for i in range(self.count_rows):
+            tmp_matrix.rows[i] = array('f', (-tmp_matrix.rows[i][j] for j in range(self.count_cols)))
 
         return tmp_matrix
 
@@ -267,7 +266,7 @@ class Matrix:
 
     def __eq__(self, other):
         """ Compare matrix. Two matrix is equal if equal each item's pair """
-        return all((self.rows[i] == other.rows[i] for i in self.range_n))
+        return all((self.rows[i] == other.rows[i] for i in range(self.count_rows)))
 
     ##################################################
     # Mul methods
@@ -301,7 +300,7 @@ class Matrix:
 
         """
         if not isinstance(other, Real):
-            raise TypeError
+            raise TypeError('You can mul only Matrix to Matrix')
 
         self.rows = [[item * other for item in row] for row in self.rows]
         return self
@@ -318,16 +317,16 @@ class Matrix:
     def __imatmul__(self, other):
         """ Mul first matrix on second matrix by math rules. """
         if not isinstance(other, Matrix):
-            raise TypeError
+            raise TypeError('You can matmul only Matrix to Matrix')
 
         if self.count_cols != other.count_rows:
             raise DimensionError
 
-        tmp_rows = [array('f', [0] * other.count_cols) for _ in self.range_n]
+        tmp_rows = [array('f', [0] * other.count_cols) for _ in range(self.count_rows)]
 
-        for i in self.range_n:
+        for i in range(self.count_rows):
             for j in range(other.count_cols):
-                q = (self.rows[i][k] * other.rows[k][j] for k in self.range_m)
+                q = (self.rows[i][k] * other.rows[k][j] for k in range(self.count_cols))
                 tmp_rows[i][j] = sum(q)
 
         self.rows = tmp_rows

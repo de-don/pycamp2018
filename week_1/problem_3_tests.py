@@ -16,7 +16,7 @@ class TestMatrix(TestCase):
         }
 
     def matrix(self, key):
-        return Matrix(*self.inputs[key])
+        return Matrix(self.inputs[key])
 
     def test_init(self):
         m = self.matrix('simple')
