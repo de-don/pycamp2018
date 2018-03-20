@@ -15,7 +15,7 @@ class BaseDict:
         KeyError: element with this key not found in dict
     """
 
-    def __init__(self, input_dict, *args, **kwargs):
+    def __init__(self, input_dict):
         cls = self.__class__
         for key, value in input_dict.items():
             # if value is dict, create new instance
