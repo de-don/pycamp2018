@@ -210,3 +210,7 @@ class RemovableDictTest(TestCase):
         del d.skills.python
         with self.assertRaises(KeyError):
             d.skills.python
+
+        # try to del again
+        with self.assertRaises(KeyError):
+            del d.skills.python

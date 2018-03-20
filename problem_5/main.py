@@ -37,5 +37,4 @@ class RemovableDict(ExpandableDict):
     def __delattr__(self, item):
         if item not in self.__dict__:
             raise KeyError(f'Key {item} not found in dict')
-
         del self.__dict__[item]
