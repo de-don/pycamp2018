@@ -23,7 +23,7 @@ class FactoryReadableTest(TestCase):
     def setUp(self):
         self.cls = dict_factory("EditableRemovable", **self.permissions)
 
-    def test_init_and_read(self):
+    def test_init_and_read_1(self):
         d = self.cls(dict_1)
         self.assertEqual(d.name, dict_1['name'])
         self.assertEqual(d.age, dict_1['age'])
@@ -32,58 +32,73 @@ class FactoryReadableTest(TestCase):
         with self.assertRaises(KeyError):
             d.title
 
+    def test_init_and_read_2(self):
         d = self.cls(dict_2)
         self.assertEqual(d.skills.python, dict_2['skills']['python'])
         # try to get not exist attribute
         with self.assertRaises(KeyError):
             d.skills.cpp
 
-    def test_change(self):
+    def test_change_allow(self):
+        if not self.permissions.get('change', False):
+            return
         d1 = self.cls(dict_1)
         d2 = self.cls(dict_2)
+        d1.name = 'Joan'
+        d2.skills.python = 'guru'
+        self.assertEqual(d1.name, 'Joan')
+        self.assertEqual(d2.skills.python, 'guru')
 
-        # try to edit already exist attr
+
+    def test_change_denied(self):
         if self.permissions.get('change', False):
-            d1.name = 'Joan'
-            d2.skills.python = 'guru'
-            self.assertEqual(d1.name, 'Joan')
-            self.assertEqual(d2.skills.python, 'guru')
             return
-
+        d1 = self.cls(dict_1)
+        d2 = self.cls(dict_2)
         with self.assertRaises(PermissionError):
             d1.name = 'Joan'
         with self.assertRaises(PermissionError):
             d2.skills.python = 'guru'
 
-    def test_add(self):
+    def test_add_allow(self):
+        if not self.permissions.get('add', False):
+            return
         d1 = self.cls(dict_1)
         d2 = self.cls(dict_2)
 
+        d1.title = 'example'
+        d2.skills.cpp = 'guru'
+        self.assertEqual(d1.title, 'example')
+        self.assertEqual(d2.skills.cpp, 'guru')
+
+    def test_add_denied(self):
         if self.permissions.get('add', False):
-            d1.title = 'example'
-            d2.skills.cpp = 'guru'
-            self.assertEqual(d1.title, 'example')
-            self.assertEqual(d2.skills.cpp, 'guru')
             return
-
+        d1 = self.cls(dict_1)
+        d2 = self.cls(dict_2)
         with self.assertRaises(PermissionError):
             d1.title = 'example'
         with self.assertRaises(PermissionError):
             d2.skills.cpp = 'guru'
 
-    def test_delete(self):
+    def test_delete_allow(self):
+        if not self.permissions.get('delete', False):
+            return
         d1 = self.cls(dict_1)
         d2 = self.cls(dict_2)
 
-        if self.permissions.get('delete', False):
-            del d1.name
-            del d2.skills.python
-            with self.assertRaises(KeyError):
-                d1.name
-            with self.assertRaises(KeyError):
-                d2.skills.python
-            return
+        del d1.name
+        del d2.skills.python
+        with self.assertRaises(KeyError):
+            d1.name
+        with self.assertRaises(KeyError):
+            d2.skills.python
 
+    def test_delete_denied(self):
+        if self.permissions.get('delete', False):
+            return
+        d1 = self.cls(dict_1)
+        d2 = self.cls(dict_2)
         with self.assertRaises(PermissionError):
             del d1.name
         with self.assertRaises(PermissionError):
