@@ -1,5 +1,6 @@
 from itertools import compress
 from collections import defaultdict
+from copy import deepcopy
 
 
 class ProtectedError(PermissionError):
@@ -23,6 +24,8 @@ class BaseDict:
         # if value is dict, create new instance
         if isinstance(value, dict):
             value = self.__class__(value)
+        else:
+            value = deepcopy(value)
         # save key:value
         self.__dict__[key] = value
 
@@ -90,6 +93,8 @@ class ProtectedMixin:
         if isinstance(value, dict):
             protected_attributes = self._protected.get(key, None)
             value = self.__class__(value, protected=protected_attributes)
+        else:
+            value = deepcopy(value)
         self.__dict__[key] = value
 
     def _set_protected(self, protected):
