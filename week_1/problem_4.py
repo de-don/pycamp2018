@@ -195,6 +195,12 @@ class Set:
 
         This is not change Set, if it's already contain an item.
         """
+
+        # check immutable
+        from collections.abc import Hashable
+        if not isinstance(item, Hashable):
+            raise TypeError(f'unhashable type: \'{item.__class__.__name__}\'')
+
         if item not in self:
             self._items.append(item)
 

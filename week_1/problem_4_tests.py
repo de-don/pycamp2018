@@ -14,7 +14,7 @@ class TestSet(TestCase):
         s = Set(l)
         self.assertListEqual(sorted(list(s)), sorted(list(set(l))))
 
-        l = [1, 1, 1]
+        l = [(1,), (1,), (1,)]
         s = Set(l)
         self.assertListEqual(sorted(list(s)), sorted(list(set(l))))
 
@@ -24,6 +24,11 @@ class TestSet(TestCase):
 
         with self.assertRaises(TypeError):
             Set(1)
+
+    def test_mutable(self):
+        l = [[1, ], {1, }, (1,)]
+        with self.assertRaises(TypeError):
+            Set(l)
 
     def test_output(self):
         self.assertEqual(repr(Set([])), 'set()')
