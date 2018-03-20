@@ -129,5 +129,6 @@ for change, add, delete, protected in product([False, True], repeat=4):
     class_name = "TestPermissions_" + "".join(compress(name, flags))
 
     # save variable in globals, in order to Unittests runner can see this
-    attrs = {"permissions": dict(change=change, add=add, delete=delete)}
+    attrs = {"permissions": dict(change=change, add=add, delete=delete,
+                                 protected=protected)}
     globals()[class_name] = type(class_name, (FactoryReadableTest,), attrs)
