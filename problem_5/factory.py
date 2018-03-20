@@ -16,13 +16,15 @@ class BaseDict:
     """
 
     def __init__(self, input_dict):
-        cls = self.__class__
         for key, value in input_dict.items():
-            # if value is dict, create new instance
-            if isinstance(value, dict):
-                value = cls(value)
-            # save key:value
-            self.__dict__[key] = value
+            self._add(key, value)
+
+    def _add(self, key, value):
+        # if value is dict, create new instance
+        if isinstance(value, dict):
+            value = self.__class__(value)
+        # save key:value
+        self.__dict__[key] = value
 
     def __setattr__(self, key, value):
         # Disable access to edit attributes
@@ -46,6 +48,7 @@ class EditMixin:
         if key not in self.__dict__:
             # key doesn't exists, need to add
             return super().__setattr__(key, value)
+        # allow edit exists keys
         self.__dict__[key] = value
 
 
@@ -56,6 +59,7 @@ class AddMixin:
         if key in self.__dict__:
             # key already exists, not need to add
             return super().__setattr__(key, value)
+        # allow create new keys
         self.__dict__[key] = value
 
 
@@ -66,6 +70,7 @@ class DelMixin:
         if item not in self.__dict__:
             # key doesn't exists
             return super().__delattr__(item)
+        # allow delete exists keys
         del self.__dict__[item]
 
 
@@ -75,20 +80,19 @@ class ProtectedMixin:
      Protected attribute is forbidden to change and delete.
      If you try it, you get 'ProtectedError'.
      """
-    __protected = []
 
-    def __init__(self, input_dict, protected):
-        self.__set_protected(protected)
+    def __init__(self, input_dict, protected=None):
+        self._set_protected(protected if protected else [])
+        super().__init__(input_dict)
 
-        cls = self.__class__
-        for key, value in input_dict.items():
-            # if value is dict, create new instance
-            if isinstance(value, dict):
-                value = cls(value, protected=self.__protected.get(key, []))
-            # save key:value
-            self.__dict__[key] = value
+    def _add(self, key, value):
+        # if value is dict, create new instance
+        if isinstance(value, dict):
+            protected_attributes = self._protected.get(key, None)
+            value = self.__class__(value, protected=protected_attributes)
+        self.__dict__[key] = value
 
-    def __set_protected(self, protected):
+    def _set_protected(self, protected):
         """ Method to set process input list of attr names.
 
         Method create dict of lists, where key - it is main-attribute name,
@@ -108,15 +112,15 @@ class ProtectedMixin:
             main_attr = parts[0]
             sub_attr = ".".join(parts[1:])
             protected_filtered[main_attr].append(sub_attr)
-        self.__protected = protected_filtered
+        self.__dict__['_protected'] = protected_filtered
 
     def __setattr__(self, key, value):
-        if key not in self.__protected:
+        if key not in self._protected:
             return super().__setattr__(key, value)
         raise ProtectedError("this attribute is forbidden")
 
     def __delattr__(self, item):
-        if item not in self.__protected:
+        if item not in self._protected:
             return super().__delattr__(item)
         raise ProtectedError("this attribute is forbidden")
 
