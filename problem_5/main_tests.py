@@ -1,6 +1,11 @@
 from unittest import TestCase
 
-from problem_5.main import SimpleDict, EditableDict
+from problem_5.main import (
+    SimpleDict,
+    EditableDict,
+    ExpandableDict,
+    RemovableDict,
+)
 
 dict_1 = {'name': 'Denis', 'age': 22}
 dict_2 = {
@@ -107,3 +112,101 @@ class EditableDictTest(TestCase):
         # try to del attr
         with self.assertRaises(PermissionError):
             del d.skills.python
+
+
+class ExpandableDictTest(TestCase):
+    cls = ExpandableDict
+
+    def test_init(self):
+        d = self.cls({'name': 'Denis', 'age': 22})
+        self.assertEqual(d.name, dict_1['name'])
+        self.assertEqual(d.age, dict_1['age'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.title = 'example'
+        self.assertEqual(d.title, 'example')
+
+        # edit to already exist attr
+        d.name = 'Joan'
+        self.assertEqual(d.name, 'Joan')
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.name
+
+    def test_2d_dict(self):
+        d = self.cls(dict_2)
+
+        self.assertEqual(d.name, dict_2['name'])
+        self.assertEqual(d.age, dict_2['age'])
+        self.assertEqual(d.skills.python, dict_2['skills']['python'])
+
+        # try get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.skills.cpp = 'guru'
+        self.assertEqual(d.skills.cpp, 'guru')
+
+        # edit already exist attr
+        d.skills.python = 'guru'
+        self.assertEqual(d.skills.python, 'guru')
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.skills.python
+
+
+class RemovableDictTest(TestCase):
+    cls = RemovableDict
+
+    def test_init(self):
+        d = self.cls({'name': 'Denis', 'age': 22})
+        self.assertEqual(d.name, dict_1['name'])
+        self.assertEqual(d.age, dict_1['age'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.title = 'example'
+        self.assertEqual(d.title, 'example')
+
+        # edit to already exist attr
+        d.name = 'Joan'
+        self.assertEqual(d.name, 'Joan')
+
+        # del attr
+        del d.name
+        with self.assertRaises(KeyError):
+            d.name
+
+    def test_2d_dict(self):
+        d = self.cls(dict_2)
+
+        self.assertEqual(d.name, dict_2['name'])
+        self.assertEqual(d.age, dict_2['age'])
+        self.assertEqual(d.skills.python, dict_2['skills']['python'])
+
+        # try get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.skills.cpp = 'guru'
+        self.assertEqual(d.skills.cpp, 'guru')
+
+        # edit already exist attr
+        d.skills.python = 'guru'
+        self.assertEqual(d.skills.python, 'guru')
+
+        # del attr
+        del d.skills.python
+        with self.assertRaises(KeyError):
+            d.skills.python
