@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from problem_5.factory import factory
+from problem_5.factory import dict_factory
 from problem_5.main_tests import (
     SimpleDictTest,
     EditableDictTest,
@@ -18,15 +18,15 @@ dict_2 = {
     }
 }
 
-SimpleDictTest.cls = factory("SimpleDict")
-EditableDictTest.cls = factory("EditableDict", change=True)
-ExpandableDictTest.cls = factory("ExpandableDict", change=True, add=True)
-RemovableDictTest.cls = factory("RemovableDict", change=True, add=True,
+SimpleDictTest.cls = dict_factory("SimpleDict")
+EditableDictTest.cls = dict_factory("EditableDict", change=True)
+ExpandableDictTest.cls = dict_factory("ExpandableDict", change=True, add=True)
+RemovableDictTest.cls = dict_factory("RemovableDict", change=True, add=True,
                                 delete=True)
 
 
 class EditableRemovableTest(TestCase):
-    cls = factory("EditableRemovable", change=True, delete=True)
+    cls = dict_factory("EditableRemovable", change=True, delete=True)
 
     def test_init_and_read(self):
         d = self.cls(dict_1)
