@@ -28,7 +28,7 @@ RemovableDictTest.cls = dict_factory("RemovableDict", change=True, add=True,
                                      delete=True)
 
 
-# One test for create child classes with different permissions
+# One test-class for create child classes with different permissions
 class FactoryReadableTest(TestCase):
     permissions = dict(change=False, add=False, delete=False)
 
@@ -101,7 +101,7 @@ class FactoryReadableTest(TestCase):
 # Test-factory for test all combinations of permissions
 for change, add, delete in product([False, True], repeat=3):
     name = ["Edit", "Add", "Del"]
-    class_name = "Test_" + "_".join(compress(name, [change, add, delete]))
+    class_name = "TestPermissions_" + "".join(compress(name, [change, add, delete]))
 
     # save variable in globals, in order to Unittests runner can see this
     attrs = {"permissions": dict(change=change, add=add, delete=delete)}
