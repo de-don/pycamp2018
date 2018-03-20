@@ -1,3 +1,6 @@
+from itertools import compress
+
+
 class BaseDict:
     """ Сlass for storing a dict and accessing its elements through attrs.
 
@@ -72,12 +75,8 @@ def dict_factory(class_name, change=False, add=False, delete=False):
     Returns:
         class: New class for storing dict with selected permissions.
     """
-    bases = [BaseDict]
-    if change:
-        bases.insert(0, EditMixin)
-    if add:
-        bases.insert(0, AddMixin)
-    if delete:
-        bases.insert(0, DelMixin)
+    bases = [DelMixin, AddMixin, EditMixin, BaseDict]
+    flags = [delete, add, change, True]
+    bases = compress(bases, flags)
 
     return type(class_name, tuple(bases), {})
