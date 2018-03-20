@@ -1,4 +1,4 @@
-class SimpleDict:
+class BaseDict:
     """ Class for store dict and access to keys from attribute"""
 
     def __init__(self, input_dict):
@@ -23,39 +23,38 @@ class SimpleDict:
         raise PermissionError
 
 
-class EditableDictMixin:
+class EditMixin:
     def __setattr__(self, key, value):
         if key not in self.__dict__:
+            # key doesn't exists, need to add
             super().__setattr__(key, value)
         self.__dict__[key] = value
 
 
-class ExpandableDictMixin:
+class AddMixin:
     def __setattr__(self, key, value):
+        if key in self.__dict__:
+            # key already exists, not need to add
+            super().__setattr__(key, value)
         self.__dict__[key] = value
 
 
-class RemovableDictMixin:
+class DelMixin:
     def __delattr__(self, item):
         if item not in self.__dict__:
+            # key doesn't exists
             super().__delattr__(item)
         del self.__dict__[item]
 
 
-def factory(class_name, change=True, add=False, delete=False):
-    bases = [SimpleDict, ]
-    mixins = []
+def factory(class_name, change=False, add=False, delete=False):
+    bases = [BaseDict]
     if change:
-        mixins.append(EditableDictMixin)
+        bases.insert(0, EditMixin)
     if add:
-        mixins.append(ExpandableDictMixin)
+        bases.insert(0, AddMixin)
     if delete:
-        mixins.append(RemovableDictMixin)
+        bases.insert(0, DelMixin)
 
-    bases = tuple(mixins[::-1] + bases)
+    bases = tuple(bases)
     return type(class_name, bases, {})
-
-
-EditableDict = factory("EditableDict", change=True)
-ExpandableDict = factory("ExpandableDict", change=True, add=True)
-RemovableDict = factory("RemovableDict", change=True, add=True, delete=True)
