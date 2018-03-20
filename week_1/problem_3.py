@@ -22,12 +22,10 @@ def split_2d_slice(item):
     if isinstance(item, tuple):
         if len(item) == 1:
             return item[0], None
-        elif len(item) == 2:
+        if len(item) == 2:
             return item
-        else:
-            raise TypeError('Ltn of tuple for slice must be 1 or 2!')
-    else:
-        return item, None
+        raise TypeError('Len of tuple for slice must be 1 or 2!')
+    return item, None
 
 
 class Matrix:
@@ -50,19 +48,22 @@ class Matrix:
         """
 
         self.precision = precision
-        if iterable:
-            rows = [array('f', row) for row in iterable]
-        else:
-            rows = []
+        rows = [array('f', row) for row in iterable] if iterable else []
 
         self.count_rows = len(rows)
         self.count_cols = max(map(len, rows), default=0)
 
+        self.rows = rows
+
         # checking dimension
-        if self.count_cols != min(map(len, rows), default=0):
+        self.check_matrix_dimension()
+
+    def check_matrix_dimension(self):
+        if self.count_cols != min(map(len, self.rows), default=0):
             raise DimensionError
 
-        self.rows = rows
+    def copy(self):
+        return Matrix(self)
 
     @property
     def size(self):
@@ -98,7 +99,7 @@ class Matrix:
             Matrix: matrix count_rows*count_cols from zeros
         """
 
-        rows = ((0 for _ in range(count_cols)) for _ in range(count_rows))
+        rows = ((0 for j in range(count_cols)) for i in range(count_rows))
         return cls(rows)
 
     @classmethod
@@ -151,33 +152,34 @@ class Matrix:
         # get horizontal and vertical slices
         h_slice, v_slice = split_2d_slice(item)
 
+        if not isinstance(h_slice, (Integral, slice)) or \
+                (v_slice and not isinstance(v_slice, (Integral, slice))):
+            raise TypeError('Slice must be int, slice, or tuple of them')
+
         tmp_matrix = list(self)
 
         # horizontal slice, if exists
         if h_slice is not None:
             if isinstance(h_slice, Integral):
                 tmp_matrix = (tmp_matrix[h_slice],)
-            elif isinstance(h_slice, slice):
-                tmp_matrix = tmp_matrix[h_slice]
             else:
-                raise TypeError('Slice must be int, slice, or tuple of them')
+                tmp_matrix = tmp_matrix[h_slice]
 
         # vertical slice, if exists
         if (v_slice is not None) and tmp_matrix:
             if isinstance(v_slice, Integral):
                 tmp_matrix = ((row[v_slice],) for row in tmp_matrix)
-            elif isinstance(v_slice, slice):
-                tmp_matrix = (row[v_slice] for row in tmp_matrix)
             else:
-                raise TypeError('Slice must be int, slice, or tuple of them')
+                tmp_matrix = (row[v_slice] for row in tmp_matrix)
 
         # create matrix from slice
         matr = Matrix(tmp_matrix)
 
         # If need return one number
         if isinstance(h_slice, Integral) and isinstance(v_slice, Integral):
-            if matr.size == (1, 1):
-                return matr.rows[0][0]
+            # if h_slice and v_slice is int, then matr is 1*1
+            # return M[0][0]
+            return matr.rows[0][0]
 
         if matr.count_rows == 0 or matr.count_cols == 0:
             return None
@@ -189,16 +191,16 @@ class Matrix:
 
         if isinstance(value, Real) and isinstance(h_slice, Integral) \
                 and isinstance(v_slice, Integral):
+            # if setting M[i][j] = float
             self.rows[h_slice][v_slice] = value
-        elif isinstance(value, Iterable) and isinstance(h_slice, Integral) \
+            return
+        if isinstance(value, Iterable) and isinstance(h_slice, Integral) \
                 and v_slice is None:
-            row = array('f', value)
-            if len(row) != self.count_cols:
-                raise DimensionError
-
+            # if setting M[i] = [...]
             self.rows[h_slice] = array('f', value)
-        else:
-            raise TypeError
+            self.check_matrix_dimension()
+            return
+        raise TypeError
 
     def __iter__(self):
         return (list(row) for row in self.rows)
@@ -208,7 +210,7 @@ class Matrix:
     ##################################################
 
     def __add__(self, other):
-        tmp_matrix = self[:, :]
+        tmp_matrix = self.copy()
         tmp_matrix += other
         return tmp_matrix
 
@@ -217,17 +219,17 @@ class Matrix:
 
     def __iadd__(self, other):
         """ Add matrix with equal sizes """
-        if isinstance(other, Matrix):
-            if self.size != other.size:
-                raise DimensionError
-
-            for num_row in range(self.count_rows):
-                for num_col in range(self.count_cols):
-                    self.rows[num_row][num_col] += other.rows[num_row][num_col]
-
-            return self
-        else:
+        if not isinstance(other, Matrix):
             raise TypeError('You can add/sub only Matrix to Matrix')
+
+        if self.size != other.size:
+            raise DimensionError
+
+        for num_row in range(self.count_rows):
+            for num_col in range(self.count_cols):
+                self.rows[num_row][num_col] += other.rows[num_row][num_col]
+
+        return self
 
     ##################################################
     # sing methods
@@ -238,14 +240,14 @@ class Matrix:
         return self * (-1)
 
     def __pos__(self):
-        return self[:, :]
+        return self.copy()
 
     ##################################################
     # Sub methods
     ##################################################
 
     def __sub__(self, other):
-        tmp_matrix = self[:, :]
+        tmp_matrix = self.copy()
         tmp_matrix -= other
         return tmp_matrix
 
@@ -281,7 +283,7 @@ class Matrix:
             Matrix: return new Matrix
 
         """
-        tmp_matrix = self[:, :]
+        tmp_matrix = self.copy()
         tmp_matrix *= other
         return tmp_matrix
 
@@ -309,7 +311,7 @@ class Matrix:
     ##################################################
 
     def __matmul__(self, other):
-        tmp_matrix = self[:, :]
+        tmp_matrix = self.copy()
         tmp_matrix @= other
         return tmp_matrix
 
@@ -343,7 +345,7 @@ class Matrix:
     ##################################################
 
     def __pow__(self, other):
-        tmp_matrix = self[:, :]
+        tmp_matrix = self.copy()
         tmp_matrix **= other
         return tmp_matrix
 
@@ -352,17 +354,19 @@ class Matrix:
         if not isinstance(other, Integral):
             raise TypeError
 
+        if other < 0:
+            raise ValueError("Power can't be negative.")
+
         if self.count_rows != self.count_cols:
             raise DimensionError
 
         if other == 0:
             q = Matrix.even(self.count_rows)
             self.rows = q.rows
-        elif other > 1:
-            q = self[:, :]
+
+        if other > 1:
+            q = self.copy()
             for i in range(other - 1):
                 self @= q
-        elif other < 0:
-            raise ValueError("Power can't be negative.")
 
         return self
