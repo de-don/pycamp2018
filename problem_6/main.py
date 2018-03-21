@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from operator import itemgetter
 
 
 class Series:
@@ -36,6 +37,11 @@ class Series:
             raise TypeError("Not same types to compare")
         return self._items == other._items
 
+    def __len__(self):
+        return len(self._items)
+
+    def __iter__(self):
+        return iter(self._items.items())
 
 class Table:
     def __init__(self, rows, col_names=None):
@@ -105,14 +111,16 @@ class Table:
         return self.col_names[:]
 
     def order_by(self, col_name, reversed=False):
-        pass
+        new_table = self.copy()
+        new_table.rows.sort(key=itemgetter(col_name), reverse=reversed)
+
+        return new_table
+
+    def copy(self):
+        rows = (list(map(itemgetter(1), row)) for row in self.rows)
+        return Table(rows, col_names=self.col_names)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             raise TypeError("Not same types to compare")
         return self.rows == other.rows and self.col_names == self.col_names
-
-
-if __name__ == '__main__':
-    data = Table.from_csv('input.csv')
-    print(data)

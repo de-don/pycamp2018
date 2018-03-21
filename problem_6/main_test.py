@@ -63,16 +63,14 @@ class TableTest(TestCase):
 
     def test_columns_one(self):
         data = Table.from_csv(self.input['csv'])
-
-        data_name_and_salary = Table(
+        data_name = Table(
             rows=(('john',), ('kevin',), ('barney',)),
             col_names=('name',)
         )
-        self.assertEqual(data.columns('name'), data_name_and_salary)
+        self.assertEqual(data.columns('name'), data_name)
 
     def test_columns_two(self):
         data = Table.from_csv(self.input['csv'])
-
         data_name_and_salary = Table(
             rows=(('john', 100), ('kevin', 200), ('barney', 300)),
             col_names=('name', 'salary')
@@ -81,14 +79,31 @@ class TableTest(TestCase):
 
     def test_columns_two_reverse(self):
         data = Table.from_csv(self.input['csv'])
-
-        data_name_and_salary = Table(
+        data_salary_and_name = Table(
             rows=((100, 'john'), (200, 'kevin'), (300, 'barney')),
             col_names=('salary', 'name')
         )
-        self.assertEqual(data.columns('salary', 'name'), data_name_and_salary)
+        self.assertEqual(data.columns('salary', 'name'), data_salary_and_name)
 
     def test_get_cell_value(self):
         data = Table.from_csv(self.input['csv'])
         self.assertEqual(data[0]['name'], 'john')
         self.assertEqual(data[1]['salary'], 200)
+
+    def test_order_by(self):
+        data = Table.from_csv(self.input['csv'])
+        data_order_salary = data.copy()
+        data_order_salary_rev = Table(
+            rows=(
+                ('barney', '1972-12-12', 300),
+                ('kevin', '1972-12-12', 200),
+                ('john', '1988-12-12', 100),
+            ),
+            col_names=('name', 'birthday', 'salary')
+        )
+
+        self.assertEqual(data.order_by('salary'), data_order_salary)
+        self.assertEqual(
+            data.order_by('salary', reversed=True),
+            data_order_salary_rev,
+        )
