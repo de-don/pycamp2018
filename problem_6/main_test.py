@@ -1,4 +1,5 @@
 import datetime
+import os
 from unittest import TestCase
 
 from problem_6.main import Table, NotSupported
@@ -27,6 +28,8 @@ class TableTest(TestCase):
             "    birthday: 1972-12-12 00:00:00",
             "    salary: 300",
         ])
+
+        self.tmp_name = "_output"
 
     def test_init_from_csv(self):
         data = Table.from_csv(self.input['csv'])
@@ -193,3 +196,25 @@ class TableTest(TestCase):
         )
         self.assertEqual(data_filtered.count(), 1)
         self.assertTrue(data_filtered[0]['salary'] > 200)
+
+    def test_export_to_csv(self):
+        data1 = Table.from_csv(self.input['csv'])
+        data1.to_csv(self.tmp_name)
+
+        data2 = Table.from_csv(self.tmp_name)
+        self.assertEqual(data1, data2)
+        os.remove(self.tmp_name)
+
+    def test_export_to_json(self):
+        data1 = Table.from_json(self.input['json'])
+        data1.to_json(self.tmp_name)
+
+        data2 = Table.from_json(self.tmp_name)
+        self.assertEqual(data1, data2)
+        os.remove(self.tmp_name)
+
+    def test_export_to_html(self):
+        data1 = Table.from_csv(self.input['csv'])
+        data1.to_html(self.tmp_name)
+        # don't now how check
+        os.remove(self.tmp_name)

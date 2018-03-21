@@ -178,6 +178,7 @@ class Table:
 
         Args:
             file_path(str): path to sqlite3 file.
+            table_name(str): table_name in database.
 
         Returns:
             Table: Table created from data of the database.
@@ -192,14 +193,62 @@ class Table:
     # export methods
     ##################################################
 
-    def to_csv(self):
-        pass
+    def to_csv(self, file_path, delimiter=";"):
+        """ Save Table to csv file.
 
-    def to_json(self):
-        pass
+        Args:
+            file_path(str): path to new csv file.
+            delimiter(str): csv delimiter.
+        """
 
-    def to_html(self):
-        pass
+        with open(file_path, 'w') as file:
+            writer = csv.writer(file, delimiter=delimiter)
+
+            writer.writerow(self.headers)
+            for row in self.rows:
+                writer.writerow(map(itemgetter(1), row))
+
+    def to_json(self, file_path):
+        """ Save Table to json file.
+
+        Args:
+            file_path(str): path to new json file.
+        """
+
+        dictionary = {
+            column_name: [str(row[column_name]) for row in self.rows]
+            for column_name in self.headers
+        }
+        with open(file_path, 'w') as file:
+            json.dump(dictionary, file)
+
+    def to_html(self, file_path):
+        """ Save Table to html file.
+
+        Args:
+            file_path(str): path to new html file.
+        """
+
+        table = '<table><thead>\n{thead}\n</thead>' \
+                '<tbody>\n{tbody}\n</tbody></table>'
+
+        tr = '  <tr>\n{item}\n  </tr>'
+        td = '    <td>{item}</td>'
+        th = '  <th>{item}</th>'
+
+        th_items = [th.format(item=col_name) for col_name in self.headers]
+        tr_items = []
+        for row in self.rows:
+            td_items = [
+                td.format(item=row[col_name])
+                for col_name in self.headers
+            ]
+            tr_items.append(tr.format(item=("\n".join(td_items))))
+
+        text = table.format(thead="\n".join(th_items), tbody="\n".join(tr_items))
+
+        with open(file_path, 'w') as file:
+            file.write(text)
 
     ##################################################
     # other methods
