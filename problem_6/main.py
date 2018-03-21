@@ -9,12 +9,24 @@ class NotSupported(ValueError):
     pass
 
 
-class Series:
+class Entry:
+    """ Class for storing one table row. """
     def __init__(self, row, col_names):
-        row = list(map(self.detect_type, list(row)))
+        """
+        Args:
+            row(Iterable): iterator of items.
+            col_names(Iterable): iterator of strings.
+        """
+
         col_names = list(col_names)
+        if len(set(col_names)) < len(col_names):
+            raise ValueError("Names of columns must be unique")
+
+        # detection type of each element
+        row = list(map(self.detect_type, list(row)))
+
         if len(row) != len(col_names):
-            ValueError("Len(row) != Len(col_names)")
+            raise ValueError("Len(row) != Len(col_names)")
 
         self._items = OrderedDict(zip(col_names, row))
 
@@ -58,6 +70,9 @@ class Series:
 
 
 class Table:
+    """ Class for easy working with tables. """
+
+    # supported types and their functions
     SUPPORTED_FUNCS = {
         str: ['startswith', 'endswith'],
         int: ['gt', 'lt', 'ge', 'le'],
@@ -65,15 +80,28 @@ class Table:
     }
 
     def __init__(self, rows, col_names):
+        """
+        Args:
+            row(Iterable): iterator of iterators. For example [[1, 2], [3, 4]].
+            col_names(Iterable): iterator of strings.
+        """
         self.col_names = list(col_names)
-        self.cols_count = len(self.col_names)
 
-        self.rows = [Series(row, self.col_names) for row in rows]
-        self.rows_count = len(self.rows)
+        self.rows = [Entry(row, self.col_names) for row in rows]
+
+    @property
+    def cols_count(self):
+        """ Count of column names """
+        return len(self.col_names)
+
+    @property
+    def rows_count(self):
+        """ Count of rows """
+        return len(self.rows)
 
     def __str__(self):
         if not self.rows_count:
-            return "None"
+            return "Empty"
 
         lines = []
         for row_num, row in enumerate(self.rows):
@@ -81,13 +109,20 @@ class Table:
             lines.extend('    ' + line for line in str(row).splitlines())
         return "\n".join(lines)
 
-    __repr__ = __str__
-
     @classmethod
-    def from_csv(cls, file_path):
+    def from_csv(cls, file_path, sep=";"):
+        """ Load Table from csv file.
+
+        Args:
+            file_path(str): path to csv file.
+            sep(str): csv delimiter.
+
+        Returns:
+            Table: Table created from data of the file.
+        """
         with open(file_path, 'r') as file:
             try:
-                head = next(file).rstrip().split(";")
+                head = next(file).rstrip().split(sep)
             except StopIteration:
                 raise Exception('Head not found')
 
@@ -97,12 +132,33 @@ class Table:
 
     @staticmethod
     def split_key_filtering(key):
+        """ Split key such as 'date__gt' by '__' and return parts.
+
+        if '__' not in key, return key and None.
+
+        Args:
+            key(str): keyword with '__' or not
+
+        Returns:
+            str: first part of key
+            str or None: second part of key
+        """
         params = key.split("__", 1)
         if len(params) == 2:
             return params
         return params[0], None
 
     def filter(self, **kwargs):
+        """ Filtering table by columns or by functions of columns.
+
+        Each item from kwargs must belong one of next patterns:
+            {key}__{function} = {value},
+            {key} = {value}.
+        Supported functions for current type stored in self.SUPPORTED_FUNCS
+
+        If function not supported, raise NotSupported
+        """
+
         data = self.copy()
         rows = data.rows
         for key, value in kwargs.items():
@@ -139,19 +195,26 @@ class Table:
 
         # create list from filters and save it's
         data.rows = list(rows)
-        data.rows_count = len(data.rows)
         return data
 
     def count(self):
+        """ Function return count of rows """
         return self.rows_count
 
     def sum(self, col_name):
+        """ Sum of column with name 'col_name' """
         return sum(row[col_name] for row in self.rows)
 
     def avg(self, col_name):
+        """ Avg of column with name 'col_name' """
         return self.sum(col_name) / self.rows_count if self.rows_count else 0
 
     def unique(self, col_name):
+        """ Unique values of column with name 'col_name'
+
+        Returns:
+            set: Unique values stored in col_name
+        """
         return set(row[col_name] for row in self.rows)
 
     def __getitem__(self, item):
@@ -160,6 +223,7 @@ class Table:
         return self.rows[item]
 
     def columns(self, *col_names):
+        """ Create new Table which contain only columns from 'col_names'. """
         new_rows = (
             (row[col_name] for col_name in col_names)
             for row in self.rows
@@ -168,14 +232,25 @@ class Table:
 
     @property
     def headers(self):
+        """ List of column names """
         return self.col_names[:]
 
     def order_by(self, col_name, reversed=False):
+        """ Return new Table which rows sorted by column 'col_name'.
+
+        Args:
+            col_name(str): name of column for sorting.
+            reversed(bool): reversed or not
+
+        Returns:
+            Table: sorted table.
+        """
         new_table = self.copy()
         new_table.rows.sort(key=itemgetter(col_name), reverse=reversed)
         return new_table
 
     def copy(self):
+        """ Return copy of this Table. """
         rows = (
             map(itemgetter(1), row)
             for row in self.rows
