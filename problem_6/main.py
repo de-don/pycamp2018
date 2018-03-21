@@ -1,5 +1,6 @@
 import datetime
 import json
+import csv
 import operator
 from collections import OrderedDict
 from functools import partial
@@ -129,24 +130,20 @@ class Table:
         return "\n".join(lines)
 
     @classmethod
-    def from_csv(cls, file_path, sep=";"):
+    def from_csv(cls, file_path, delimiter=";"):
         """ Load Table from csv file.
 
         Args:
             file_path(str): path to csv file.
-            sep(str): csv delimiter.
+            delimiter(str): csv delimiter.
 
         Returns:
             Table: Table created from data of the file.
         """
         with open(file_path, 'r') as file:
-            try:
-                head = next(file).rstrip().split(sep)
-            except StopIteration:
-                raise Exception('Head not found')
-
-            lines = (line.rstrip().split(";") for line in file)
-
+            reader = csv.reader(file, delimiter=delimiter)
+            head = next(reader)
+            lines = reader
             return cls(rows=lines, col_names=head)
 
     @classmethod
