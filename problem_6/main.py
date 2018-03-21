@@ -110,16 +110,6 @@ class Table:
 
         self.rows = [Entry(row, self.col_names) for row in rows]
 
-    @property
-    def cols_count(self):
-        """ Count of column names """
-        return len(self.col_names)
-
-    @property
-    def rows_count(self):
-        """ Count of rows """
-        return len(self.rows)
-
     def __str__(self):
         if not self.rows_count:
             return "Empty"
@@ -129,6 +119,20 @@ class Table:
             lines.append(f'{row_num}:')
             lines.extend('    ' + line for line in str(row).splitlines())
         return "\n".join(lines)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError("Not same types to compare")
+        return self.rows == other.rows and self.col_names == self.col_names
+
+    def __getitem__(self, item):
+        if not isinstance(item, int):
+            raise TypeError("Index must be integer.")
+        return self.rows[item]
+
+    ##################################################
+    # load methods
+    ##################################################
 
     @classmethod
     def from_csv(cls, file_path, delimiter=";"):
@@ -183,6 +187,23 @@ class Table:
             head = (row[1] for row in data)
             lines = con.execute(f'SELECT * FROM {table_name};')
             return cls(rows=lines, col_names=head)
+
+    ##################################################
+    # export methods
+    ##################################################
+
+    def to_csv(self):
+        pass
+
+    def to_json(self):
+        pass
+
+    def to_html(self):
+        pass
+
+    ##################################################
+    # other methods
+    ##################################################
 
     @staticmethod
     def split_key_filtering(key):
@@ -250,11 +271,6 @@ class Table:
         """
         return set(row[col_name] for row in self.rows)
 
-    def __getitem__(self, item):
-        if not isinstance(item, int):
-            raise TypeError("Index must be integer.")
-        return self.rows[item]
-
     def columns(self, *col_names):
         """ Create new Table which contain only columns from 'col_names'. """
         new_rows = (
@@ -262,11 +278,6 @@ class Table:
             for row in self.rows
         )
         return Table(new_rows, col_names)
-
-    @property
-    def headers(self):
-        """ List of column names """
-        return self.col_names[:]
 
     def order_by(self, col_name, reversed=False):
         """ Return new Table which rows sorted by column 'col_name'.
@@ -290,7 +301,17 @@ class Table:
         )
         return Table(rows, col_names=self.col_names)
 
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            raise TypeError("Not same types to compare")
-        return self.rows == other.rows and self.col_names == self.col_names
+    @property
+    def cols_count(self):
+        """ Count of column names """
+        return len(self.col_names)
+
+    @property
+    def rows_count(self):
+        """ Count of rows """
+        return len(self.rows)
+
+    @property
+    def headers(self):
+        """ List of column names """
+        return self.col_names[:]
