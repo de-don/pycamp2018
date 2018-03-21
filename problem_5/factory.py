@@ -17,6 +17,9 @@ class BaseDict:
     """
 
     def __init__(self, input_dict):
+        if not isinstance(input_dict, dict):
+            raise TypeError('input_dict must be instance dict.')
+
         for key, value in input_dict.items():
             self._add(key, value)
 
@@ -111,11 +114,11 @@ class ProtectedMixin:
         protected_filtered = defaultdict(list)
         # filtering protected params
         for item in protected:
-            parts = item.split(".")
+            parts = item.split(".", 1)
             if not parts:
                 continue
             main_attr = parts[0]
-            sub_attr = ".".join(parts[1:])
+            sub_attr = parts[1] if len(parts) == 2 else ''
             protected_filtered[main_attr].append(sub_attr)
         self.__dict__['_protected'] = protected_filtered
 
