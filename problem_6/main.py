@@ -3,12 +3,25 @@ from collections import OrderedDict
 
 class Series:
     def __init__(self, row, col_names):
-        row = list(row)
+        row = list(map(self.detect_type, row))
         col_names = list(col_names)
         if len(row) != len(col_names):
             ValueError("Len(row) != Len(col_names)")
 
         self._items = OrderedDict(zip(col_names, row))
+
+    @staticmethod
+    def detect_type(item):
+        types = (int, float)
+        for cur_type in types:
+            try:
+                new_item = cur_type(item)
+                if str(new_item) == item:
+                    return new_item
+            except ValueError:
+                pass
+        return item
+
 
     def __getitem__(self, item):
         return self._items[item]
@@ -60,13 +73,13 @@ class Table:
         return self.rows_count
 
     def sum(self, col_name):
-        pass
+        return sum(row[col_name] for row in self.rows)
 
     def avg(self, col_name):
-        pass
+        return self.sum(col_name) / self.rows_count
 
     def unique(self, col_name):
-        pass
+        return set(row[col_name] for row in self.rows)
 
     def __getitem__(self, item):
         if not isinstance(item, int):
@@ -88,9 +101,3 @@ class Table:
 if __name__ == '__main__':
     data = Table.from_csv('input.csv')
     print(data)
-    print()
-    print(data[0])
-    print()
-    print(data[1])
-    print()
-    print(data.headers)
