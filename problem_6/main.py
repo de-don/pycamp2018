@@ -2,6 +2,8 @@ import datetime
 import operator
 from collections import OrderedDict
 from operator import itemgetter
+from functools import partial
+
 
 
 class NotSupported(ValueError):
@@ -11,6 +13,14 @@ class NotSupported(ValueError):
 
 class Entry:
     """ Class for storing one table row. """
+
+    # supported types and their functions for filtering
+    SUPPORTED_FUNCS = {
+        str: ['startswith', 'endswith'],
+        int: ['gt', 'lt', 'ge', 'le'],
+        datetime.datetime: ['gt', 'lt', 'ge', 'le'],
+    }
+
     def __init__(self, row, col_names):
         """
         Args:
@@ -68,16 +78,25 @@ class Entry:
     def __iter__(self):
         return iter(self._items.items())
 
+    def _check(self, key, value, func=None):
+        cell_value = self[key]
+        if func is None:
+            # if it is simple filtering without function
+            return cell_value == value
+
+        key_type = cell_value.__class__
+        # and check function on supporting
+        if func not in self.SUPPORTED_FUNCS.get(key_type, []):
+            raise NotSupported(f"{func} not supported for {key_type.__name__}")
+
+        # if function not found for type, find it in operator
+        if not getattr(key_type, func, None):
+            key_type = operator
+        return getattr(key_type, func)(cell_value, value)
+
 
 class Table:
     """ Class for easy working with tables. """
-
-    # supported types and their functions
-    SUPPORTED_FUNCS = {
-        str: ['startswith', 'endswith'],
-        int: ['gt', 'lt', 'ge', 'le'],
-        datetime.datetime: ['gt', 'lt', 'ge', 'le'],
-    }
 
     def __init__(self, rows, col_names):
         """
@@ -154,7 +173,7 @@ class Table:
         Each item from kwargs must belong one of next patterns:
             {key}__{function} = {value},
             {key} = {value}.
-        Supported functions for current type stored in self.SUPPORTED_FUNCS
+        Supported functions for current type stored in SUPPORTED_FUNCS
 
         If function not supported, raise NotSupported
         """
@@ -164,33 +183,12 @@ class Table:
         for key, value in kwargs.items():
             key, func = self.split_key_filtering(key)
 
-            if func is None:
-                # if it is simple filtering without function
-                def filter_func(x):
-                    return x[key] == value
-
-                rows = filter(filter_func, rows)
-                continue
-
-            # if function exists, check type on supporting
-            key_type = type(rows[0][key])
-            if key_type not in self.SUPPORTED_FUNCS:
-                raise NotSupported("Type not supported")
-
-            # and check function on supporting
-            if func not in self.SUPPORTED_FUNCS[key_type]:
-                raise NotSupported(
-                    f"Function {func} not supported for {key_type.__name__}"
-                )
-
-            # if function not found for type, find it in operator
-            if not getattr(key_type, func, None):
-                key_type = operator
-
-            # create function for filter
-            def filter_func(x):
-                return getattr(key_type, func)(x[key], value)
-
+            filter_func = partial(
+                Entry._check,
+                key=key,
+                value=value,
+                func=func
+            )
             rows = filter(filter_func, rows)
 
         # create list from filters and save it's
