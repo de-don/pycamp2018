@@ -27,32 +27,32 @@ class TableTest(TestCase):
 
         self.assertEqual(str(data), result)
 
-    def test_method_count(self):
+    def test_count(self):
         data = Table.from_csv(self.input['csv'])
         self.assertEqual(data.count(), 3)
 
-    def test_method_sum(self):
+    def test_sum(self):
         data = Table.from_csv(self.input['csv'])
         self.assertEqual(data.sum('salary'), 600)
 
-    def test_method_avg(self):
+    def test_avg(self):
         data = Table.from_csv(self.input['csv'])
         self.assertEqual(data.avg('salary'), 200)
 
-    def test_method_headers(self):
+    def test_headers(self):
         data = Table.from_csv(self.input['csv'])
         headers = data.headers
         result = ['name', 'birthday', 'salary']
         self.assertListEqual(headers, result)
 
-    def test_method_get_row(self):
+    def test_get_row(self):
         data = Table.from_csv(self.input['csv'])
         data_row_0 = ["name: john", "birthday: 1988-12-12", "salary: 100"]
         self.assertEqual(str(data[0]), '\n'.join(data_row_0))
         with self.assertRaises(TypeError):
             data['first']
 
-    def test_method_unique(self):
+    def test_unique(self):
         data = Table.from_csv(self.input['csv'])
         self.assertSetEqual(data.unique('salary'), {100, 200, 300})
         self.assertSetEqual(data.unique('name'), {'john', 'kevin', 'barney'})
@@ -60,3 +60,35 @@ class TableTest(TestCase):
             data.unique('birthday'),
             {'1988-12-12', '1972-12-12'},
         )
+
+    def test_columns_one(self):
+        data = Table.from_csv(self.input['csv'])
+
+        data_name_and_salary = Table(
+            rows=(('john',), ('kevin',), ('barney',)),
+            col_names=('name',)
+        )
+        self.assertEqual(data.columns('name'), data_name_and_salary)
+
+    def test_columns_two(self):
+        data = Table.from_csv(self.input['csv'])
+
+        data_name_and_salary = Table(
+            rows=(('john', 100), ('kevin', 200), ('barney', 300)),
+            col_names=('name', 'salary')
+        )
+        self.assertEqual(data.columns('name', 'salary'), data_name_and_salary)
+
+    def test_columns_two_reverse(self):
+        data = Table.from_csv(self.input['csv'])
+
+        data_name_and_salary = Table(
+            rows=((100, 'john'), (200, 'kevin'), (300, 'barney')),
+            col_names=('salary', 'name')
+        )
+        self.assertEqual(data.columns('salary', 'name'), data_name_and_salary)
+
+    def test_get_cell_value(self):
+        data = Table.from_csv(self.input['csv'])
+        self.assertEqual(data[0]['name'], 'john')
+        self.assertEqual(data[1]['salary'], 200)

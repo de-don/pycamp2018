@@ -22,7 +22,6 @@ class Series:
                 pass
         return item
 
-
     def __getitem__(self, item):
         return self._items[item]
 
@@ -31,6 +30,11 @@ class Series:
         for title, value in self._items.items():
             s.append(f'{title}: {value}')
         return "\n".join(s)
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError("Not same types to compare")
+        return self._items == other._items
 
 
 class Table:
@@ -88,7 +92,13 @@ class Table:
         return self.rows[item]
 
     def columns(self, *col_names):
-        pass
+        new_rows = []
+        for row in self.rows:
+            new_row = []
+            for col_name in col_names:
+                new_row.append(row[col_name])
+            new_rows.append(new_row)
+        return Table(new_rows, col_names)
 
     @property
     def headers(self):
@@ -96,6 +106,11 @@ class Table:
 
     def order_by(self, col_name, reversed=False):
         pass
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError("Not same types to compare")
+        return self.rows == other.rows and self.col_names == self.col_names
 
 
 if __name__ == '__main__':
