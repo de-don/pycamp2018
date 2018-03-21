@@ -1,7 +1,8 @@
+import csv
 import datetime
 import json
-import csv
 import operator
+import sqlite3
 from collections import OrderedDict
 from functools import partial
 from operator import itemgetter
@@ -168,7 +169,7 @@ class Table:
             return cls(rows=lines, col_names=head)
 
     @classmethod
-    def from_sqlite3(cls, file_path):
+    def from_sqlite3(cls, file_path, table_name):
         """ Load Table from sqlite3 database file.
 
         Args:
@@ -177,7 +178,11 @@ class Table:
         Returns:
             Table: Table created from data of the database.
         """
-        pass
+        with sqlite3.connect(file_path) as con:
+            data = con.execute(f'PRAGMA table_info({table_name});')
+            head = (row[1] for row in data)
+            lines = con.execute(f'SELECT * FROM {table_name};')
+            return cls(rows=lines, col_names=head)
 
     @staticmethod
     def split_key_filtering(key):

@@ -10,6 +10,7 @@ class TableTest(TestCase):
         self.input = {
             'csv': 'input.csv',
             'json': 'input.json',
+            'sqlite3': 'input.db',
         }
 
         self.init_result = "\n".join([
@@ -33,6 +34,10 @@ class TableTest(TestCase):
 
     def test_init_from_json(self):
         data = Table.from_json(self.input['json'])
+        self.assertEqual(str(data), self.init_result)
+
+    def test_init_from_sqlite3(self):
+        data = Table.from_sqlite3(self.input['sqlite3'], 'test_table')
         self.assertEqual(str(data), self.init_result)
 
     def test_count(self):
