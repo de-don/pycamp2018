@@ -43,6 +43,7 @@ class Series:
     def __iter__(self):
         return iter(self._items.items())
 
+
 class Table:
     def __init__(self, rows, col_names=None):
         rows = list(rows)
@@ -56,6 +57,9 @@ class Table:
         self.rows = [Series(row, self.col_names) for row in rows]
 
     def __str__(self):
+        if not self.rows_count:
+            return "None"
+
         s = []
         for row_num, row in enumerate(self.rows):
             s.append(f'{row_num}:')
@@ -76,8 +80,28 @@ class Table:
 
             return cls(rows=lines, col_names=head)
 
+    @staticmethod
+    def split_key_filtering(key):
+        params = key.split("__")
+        if len(params) > 2:
+            raise KeyError("Sub-filtering not supported")
+        if len(params) == 2:
+            return params
+        return params[0], None
+
     def filter(self, **kwargs):
-        pass
+        data = self.copy()
+        rows = data.rows
+        for key, value in kwargs.items():
+            key, func = self.split_key_filtering(key)
+
+            if func is None:
+                filter_eq = lambda x: x[key] == value
+                rows = list(filter(filter_eq, rows))
+
+        data.rows = rows
+        data.rows_count = len(rows)
+        return data
 
     def count(self):
         return self.rows_count
@@ -124,3 +148,10 @@ class Table:
         if not isinstance(other, self.__class__):
             raise TypeError("Not same types to compare")
         return self.rows == other.rows and self.col_names == self.col_names
+
+
+if __name__ == '__main__':
+    data = Table.from_csv('input.csv')
+    print(data.filter(
+        salary=200,
+    ))
