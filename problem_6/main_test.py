@@ -7,11 +7,12 @@ from problem_6.main import Table, NotSupported
 class TableTest(TestCase):
 
     def setUp(self):
-        self.input = {'csv': 'input.csv'}
+        self.input = {
+            'csv': 'input.csv',
+            'json': 'input.json',
+        }
 
-    def test_init_from_csv(self):
-        data = Table.from_csv(self.input['csv'])
-        result = "\n".join([
+        self.init_result = "\n".join([
             "0:",
             "    name: john",
             "    birthday: 1988-12-12 00:00:00",
@@ -26,7 +27,13 @@ class TableTest(TestCase):
             "    salary: 300",
         ])
 
-        self.assertEqual(str(data), result)
+    def test_init_from_csv(self):
+        data = Table.from_csv(self.input['csv'])
+        self.assertEqual(str(data), self.init_result)
+
+    def test_init_from_json(self):
+        data = Table.from_json(self.input['json'])
+        self.assertEqual(str(data), self.init_result)
 
     def test_count(self):
         data = Table.from_csv(self.input['csv'])

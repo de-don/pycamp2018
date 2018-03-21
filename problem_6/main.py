@@ -1,9 +1,9 @@
 import datetime
+import json
 import operator
 from collections import OrderedDict
-from operator import itemgetter
 from functools import partial
-
+from operator import itemgetter
 
 
 class NotSupported(ValueError):
@@ -148,6 +148,39 @@ class Table:
             lines = (line.rstrip().split(";") for line in file)
 
             return cls(rows=lines, col_names=head)
+
+    @classmethod
+    def from_json(cls, file_path):
+        """ Load Table from json file.
+
+        Args:
+            file_path(str): path to json file.
+
+        Returns:
+            Table: Table created from data of the file.
+        """
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+            head = list(data.keys())
+            columns = data.values()
+            rows_count = len(data[head[0]])
+            lines = (
+                (column[i] for column in columns)
+                for i in range(rows_count)
+            )
+            return cls(rows=lines, col_names=head)
+
+    @classmethod
+    def from_sqlite3(cls, file_path):
+        """ Load Table from sqlite3 database file.
+
+        Args:
+            file_path(str): path to sqlite3 file.
+
+        Returns:
+            Table: Table created from data of the database.
+        """
+        pass
 
     @staticmethod
     def split_key_filtering(key):
