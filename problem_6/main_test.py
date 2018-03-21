@@ -107,3 +107,31 @@ class TableTest(TestCase):
             data.order_by('salary', reversed=True),
             data_order_salary_rev,
         )
+
+    def test_filter_without_funcs_1(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            salary=200,
+        )
+        self.assertEqual(data_filtered.count(), 1)
+        self.assertEqual(data_filtered[0]['salary'], 200)
+        self.assertEqual(data_filtered[0]['name'], 'kevin')
+
+    def test_filter_without_funcs_2(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            birthday="1972-12-12",
+        )
+        self.assertEqual(data_filtered.count(), 2)
+        self.assertEqual(data_filtered[0]['birthday'], "1972-12-12")
+        self.assertEqual(data_filtered[1]['birthday'], "1972-12-12")
+
+    def test_filter_without_funcs_3(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            birthday="1972-12-12",
+            name="kevin"
+        )
+        self.assertEqual(data_filtered.count(), 1)
+        self.assertEqual(data_filtered[0]['birthday'], "1972-12-12")
+        self.assertEqual(data_filtered[0]['name'], "kevin")
