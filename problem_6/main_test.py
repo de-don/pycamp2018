@@ -1,6 +1,7 @@
+import datetime
 from unittest import TestCase
 
-from problem_6.main import Table
+from problem_6.main import Table, NotSupported
 
 
 class TableTest(TestCase):
@@ -13,15 +14,15 @@ class TableTest(TestCase):
         result = "\n".join([
             "0:",
             "    name: john",
-            "    birthday: 1988-12-12",
+            "    birthday: 1988-12-12 00:00:00",
             "    salary: 100",
             "1:",
             "    name: kevin",
-            "    birthday: 1972-12-12",
+            "    birthday: 1972-12-12 00:00:00",
             "    salary: 200",
             "2:",
             "    name: barney",
-            "    birthday: 1972-12-12",
+            "    birthday: 1972-12-12 00:00:00",
             "    salary: 300",
         ])
 
@@ -47,7 +48,11 @@ class TableTest(TestCase):
 
     def test_get_row(self):
         data = Table.from_csv(self.input['csv'])
-        data_row_0 = ["name: john", "birthday: 1988-12-12", "salary: 100"]
+        data_row_0 = [
+            "name: john",
+            "birthday: 1988-12-12 00:00:00",
+            "salary: 100"
+        ]
         self.assertEqual(str(data[0]), '\n'.join(data_row_0))
         with self.assertRaises(TypeError):
             data['first']
@@ -56,10 +61,6 @@ class TableTest(TestCase):
         data = Table.from_csv(self.input['csv'])
         self.assertSetEqual(data.unique('salary'), {100, 200, 300})
         self.assertSetEqual(data.unique('name'), {'john', 'kevin', 'barney'})
-        self.assertSetEqual(
-            data.unique('birthday'),
-            {'1988-12-12', '1972-12-12'},
-        )
 
     def test_columns_one(self):
         data = Table.from_csv(self.input['csv'])
@@ -95,9 +96,9 @@ class TableTest(TestCase):
         data_order_salary = data.copy()
         data_order_salary_rev = Table(
             rows=(
-                ('barney', '1972-12-12', 300),
-                ('kevin', '1972-12-12', 200),
-                ('john', '1988-12-12', 100),
+                ('barney', '1972-12-12 00:00:00', 300),
+                ('kevin', '1972-12-12 00:00:00', 200),
+                ('john', '1988-12-12 00:00:00', 100),
             ),
             col_names=('name', 'birthday', 'salary')
         )
@@ -119,19 +120,64 @@ class TableTest(TestCase):
 
     def test_filter_without_funcs_2(self):
         data = Table.from_csv(self.input['csv'])
+        d = datetime.datetime(year=1972, day=12, month=12)
         data_filtered = data.filter(
-            birthday="1972-12-12",
+            birthday=d,
         )
         self.assertEqual(data_filtered.count(), 2)
-        self.assertEqual(data_filtered[0]['birthday'], "1972-12-12")
-        self.assertEqual(data_filtered[1]['birthday'], "1972-12-12")
+        self.assertEqual(data_filtered[0]['birthday'], d)
+        self.assertEqual(data_filtered[1]['birthday'], d)
 
     def test_filter_without_funcs_3(self):
         data = Table.from_csv(self.input['csv'])
+        d = datetime.datetime(year=1972, day=12, month=12)
         data_filtered = data.filter(
-            birthday="1972-12-12",
+            birthday=d,
             name="kevin"
         )
         self.assertEqual(data_filtered.count(), 1)
-        self.assertEqual(data_filtered[0]['birthday'], "1972-12-12")
+        self.assertEqual(data_filtered[0]['birthday'], d)
         self.assertEqual(data_filtered[0]['name'], "kevin")
+
+    def test_filter_not_supported_func(self):
+        data = Table.from_csv(self.input['csv'])
+
+        with self.assertRaises(NotSupported):
+            data_filtered = data.filter(
+                birthday__startswith=100,
+            )
+
+    def test_filter_str_startswith(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            name__startswith="bar",
+        )
+        self.assertEqual(data_filtered.count(), 1)
+        self.assertTrue(
+            data_filtered[0]['name'].startswith("bar")
+        )
+
+    def test_filter_str_endswith(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            name__endswith="vin",
+        )
+        self.assertEqual(data_filtered.count(), 1)
+        self.assertTrue(data_filtered[0]['name'].endswith("vin"))
+
+    def test_filter_int_ge(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            salary__ge=200,
+        )
+        self.assertEqual(data_filtered.count(), 2)
+        self.assertTrue(data_filtered[0]['salary'] >= 200)
+        self.assertTrue(data_filtered[1]['salary'] >= 200)
+
+    def test_filter_int_gt(self):
+        data = Table.from_csv(self.input['csv'])
+        data_filtered = data.filter(
+            salary__gt=200,
+        )
+        self.assertEqual(data_filtered.count(), 1)
+        self.assertTrue(data_filtered[0]['salary'] > 200)

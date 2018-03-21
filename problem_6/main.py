@@ -1,6 +1,10 @@
 from collections import OrderedDict
+import operator
 from operator import itemgetter
+import datetime
 
+class NotSupported(ValueError):
+    pass
 
 class Series:
     def __init__(self, row, col_names):
@@ -13,13 +17,16 @@ class Series:
 
     @staticmethod
     def detect_type(item):
-        types = (int, float)
+        # date format: 2018-03-20 18:30:30
+        date_time = lambda x: datetime.datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S')
+        date = lambda x: datetime.datetime.strptime(str(x), '%Y-%m-%d')
+
+        types = (int, float, date_time, date)
         for cur_type in types:
             try:
                 new_item = cur_type(item)
-                if str(new_item) == item:
-                    return new_item
-            except ValueError:
+                return new_item
+            except (ValueError, TypeError):
                 pass
         return item
 
@@ -90,14 +97,37 @@ class Table:
         return params[0], None
 
     def filter(self, **kwargs):
+        supported_funcs = {
+            str: ['startswith', 'endswith'],
+            int: ['gt', 'lt', 'ge', 'le'],
+            datetime.datetime: ['gt', 'lt', 'ge', 'le'],
+        }
+
         data = self.copy()
         rows = data.rows
         for key, value in kwargs.items():
             key, func = self.split_key_filtering(key)
+            filter_func = None
 
             if func is None:
-                filter_eq = lambda x: x[key] == value
-                rows = list(filter(filter_eq, rows))
+                filter_func = lambda x: x[key] == value
+                rows = list(filter(filter_func, rows))
+                continue
+
+            key_type = type(rows[0][key])
+            if not key_type in supported_funcs:
+                raise NotSupported("Type not supported")
+
+            if func not in supported_funcs[key_type]:
+                raise NotSupported(f"Function {func} not supported"
+                                          f" for {key_type.__name__}")
+
+            if getattr(key_type, func, None):
+                filter_func = lambda x: getattr(key_type, func)(x[key], value)
+            else:
+                filter_func = lambda x: getattr(operator, func)(x[key], value)
+
+            rows = list(filter(filter_func, rows))
 
         data.rows = rows
         data.rows_count = len(rows)
@@ -152,6 +182,4 @@ class Table:
 
 if __name__ == '__main__':
     data = Table.from_csv('input.csv')
-    print(data.filter(
-        salary=200,
-    ))
+    print(data)
