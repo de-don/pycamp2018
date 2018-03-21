@@ -1,35 +1,36 @@
 import datetime
 import os
+import tempfile
 from unittest import TestCase
 
-from problem_6.main import Table, NotSupported
+from problem_6.main import NotSupported, Table
 
 
 class TableTest(TestCase):
 
     def setUp(self):
         self.input = {
-            'csv': 'input.csv',
-            'json': 'input.json',
-            'sqlite3': 'input.db',
+            'csv': 'inputs/input.csv',
+            'json': 'inputs/input.json',
+            'sqlite3': 'inputs/input.db',
         }
 
-        self.init_result = "\n".join([
-            "0:",
-            "    name: john",
-            "    birthday: 1988-12-12 00:00:00",
-            "    salary: 100",
-            "1:",
-            "    name: kevin",
-            "    birthday: 1972-12-12 00:00:00",
-            "    salary: 200",
-            "2:",
-            "    name: barney",
-            "    birthday: 1972-12-12 00:00:00",
-            "    salary: 300",
+        self.init_result = '\n'.join([
+            '0:',
+            '    name: john',
+            '    birthday: 1988-12-12 00:00:00',
+            '    salary: 100',
+            '1:',
+            '    name: kevin',
+            '    birthday: 1972-12-12 00:00:00',
+            '    salary: 200',
+            '2:',
+            '    name: barney',
+            '    birthday: 1972-12-12 00:00:00',
+            '    salary: 300',
         ])
 
-        self.tmp_name = "_output"
+        self.tmp_name = tempfile.mktemp()
 
     def test_init_from_csv(self):
         data = Table.from_csv(self.input['csv'])
@@ -64,13 +65,14 @@ class TableTest(TestCase):
     def test_get_row(self):
         data = Table.from_csv(self.input['csv'])
         data_row_0 = [
-            "name: john",
-            "birthday: 1988-12-12 00:00:00",
-            "salary: 100"
+            'name: john',
+            'birthday: 1988-12-12 00:00:00',
+            'salary: 100'
         ]
         self.assertEqual(str(data[0]), '\n'.join(data_row_0))
         with self.assertRaises(TypeError):
-            data['first']
+            d = data['first']
+            del d
 
     def test_unique(self):
         data = Table.from_csv(self.input['csv'])
@@ -120,7 +122,7 @@ class TableTest(TestCase):
 
         self.assertEqual(data.order_by('salary'), data_order_salary)
         self.assertEqual(
-            data.order_by('salary', reversed=True),
+            data.order_by('salary', reverse=True),
             data_order_salary_rev,
         )
 
@@ -148,37 +150,36 @@ class TableTest(TestCase):
         d = datetime.datetime(year=1972, day=12, month=12)
         data_filtered = data.filter(
             birthday=d,
-            name="kevin"
+            name='kevin'
         )
         self.assertEqual(data_filtered.count(), 1)
         self.assertEqual(data_filtered[0]['birthday'], d)
-        self.assertEqual(data_filtered[0]['name'], "kevin")
+        self.assertEqual(data_filtered[0]['name'], 'kevin')
 
     def test_filter_not_supported_func(self):
         data = Table.from_csv(self.input['csv'])
 
         with self.assertRaises(NotSupported):
-            data_filtered = data.filter(
-                birthday__startswith=100,
-            )
+            d = data.filter(birthday__startswith=100)
+            del d
 
     def test_filter_str_startswith(self):
         data = Table.from_csv(self.input['csv'])
         data_filtered = data.filter(
-            name__startswith="bar",
+            name__startswith='bar',
         )
         self.assertEqual(data_filtered.count(), 1)
         self.assertTrue(
-            data_filtered[0]['name'].startswith("bar")
+            data_filtered[0]['name'].startswith('bar')
         )
 
     def test_filter_str_endswith(self):
         data = Table.from_csv(self.input['csv'])
         data_filtered = data.filter(
-            name__endswith="vin",
+            name__endswith='vin',
         )
         self.assertEqual(data_filtered.count(), 1)
-        self.assertTrue(data_filtered[0]['name'].endswith("vin"))
+        self.assertTrue(data_filtered[0]['name'].endswith('vin'))
 
     def test_filter_int_ge(self):
         data = Table.from_csv(self.input['csv'])

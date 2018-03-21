@@ -31,20 +31,21 @@ class Entry:
         """
 
         col_names = list(col_names)
+        # check unique of column names
         if len(set(col_names)) < len(col_names):
-            raise ValueError("Names of columns must be unique")
+            raise ValueError('Names of columns must be unique')
 
         # detection type of each element
         row = list(map(self.detect_type, list(row)))
 
         if len(row) != len(col_names):
-            raise ValueError("Len(row) != Len(col_names)")
+            raise ValueError('Len(row) != Len(col_names)')
 
         self._items = OrderedDict(zip(col_names, row))
 
     @staticmethod
     def detect_type(item):
-        """ Detect type of item, int, float or date """
+        """ Detect type of item: int, float, date or str """
         types = (
             int,
             float,
@@ -67,11 +68,11 @@ class Entry:
 
     def __str__(self):
         lines = (f'{title}: {value}' for title, value in self._items.items())
-        return "\n".join(lines)
+        return '\n'.join(lines)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Objects have different types")
+            raise TypeError('Objects have different types')
         return self._items == other._items
 
     def __len__(self):
@@ -80,7 +81,7 @@ class Entry:
     def __iter__(self):
         return iter(self._items.items())
 
-    def _check(self, key, value, func=None):
+    def check(self, key, value, func=None):
         cell_value = self[key]
         if func is None:
             # if it is simple filtering without function
@@ -89,7 +90,7 @@ class Entry:
         key_type = cell_value.__class__
         # and check function on supporting
         if func not in self.SUPPORTED_FUNCS.get(key_type, []):
-            raise NotSupported(f"{func} not supported for {key_type.__name__}")
+            raise NotSupported(f'{func} not supported for {key_type.__name__}')
 
         # if function not found for type, find it in operator
         if not getattr(key_type, func, None):
@@ -103,7 +104,7 @@ class Table:
     def __init__(self, rows, col_names):
         """
         Args:
-            row(Iterable): iterator of iterators. For example [[1, 2], [3, 4]].
+            rows(Iterable): iterator of iterators. For example [[1, 2], [3, 4]].
             col_names(Iterable): iterator of strings.
         """
         self.col_names = list(col_names)
@@ -112,22 +113,22 @@ class Table:
 
     def __str__(self):
         if not self.rows_count:
-            return "Empty"
+            return 'Empty'
 
         lines = []
         for row_num, row in enumerate(self.rows):
             lines.append(f'{row_num}:')
             lines.extend('    ' + line for line in str(row).splitlines())
-        return "\n".join(lines)
+        return '\n'.join(lines)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Not same types to compare")
+            raise TypeError('Not same types to compare')
         return self.rows == other.rows and self.col_names == self.col_names
 
     def __getitem__(self, item):
         if not isinstance(item, int):
-            raise TypeError("Index must be integer.")
+            raise TypeError('Index must be integer.')
         return self.rows[item]
 
     ##################################################
@@ -135,7 +136,7 @@ class Table:
     ##################################################
 
     @classmethod
-    def from_csv(cls, file_path, delimiter=";"):
+    def from_csv(cls, file_path, delimiter=';'):
         """ Load Table from csv file.
 
         Args:
@@ -193,7 +194,7 @@ class Table:
     # export methods
     ##################################################
 
-    def to_csv(self, file_path, delimiter=";"):
+    def to_csv(self, file_path, delimiter=';'):
         """ Save Table to csv file.
 
         Args:
@@ -243,9 +244,9 @@ class Table:
                 td.format(item=row[col_name])
                 for col_name in self.headers
             ]
-            tr_items.append(tr.format(item=("\n".join(td_items))))
+            tr_items.append(tr.format(item=('\n'.join(td_items))))
 
-        text = table.format(thead="\n".join(th_items), tbody="\n".join(tr_items))
+        text = table.format(thead='\n'.join(th_items), tbody='\n'.join(tr_items))
 
         with open(file_path, 'w') as file:
             file.write(text)
@@ -267,7 +268,7 @@ class Table:
             str: first part of key
             str or None: second part of key
         """
-        params = key.split("__", 1)
+        params = key.split('__', 1)
         if len(params) == 2:
             return params
         return params[0], None
@@ -289,7 +290,7 @@ class Table:
             key, func = self.split_key_filtering(key)
 
             filter_func = partial(
-                Entry._check,
+                Entry.check,
                 key=key,
                 value=value,
                 func=func
@@ -328,18 +329,18 @@ class Table:
         )
         return Table(new_rows, col_names)
 
-    def order_by(self, col_name, reversed=False):
+    def order_by(self, col_name, reverse=False):
         """ Return new Table which rows sorted by column 'col_name'.
 
         Args:
             col_name(str): name of column for sorting.
-            reversed(bool): reversed or not
+            reverse(bool): reversed or not
 
         Returns:
             Table: sorted table.
         """
         new_table = self.copy()
-        new_table.rows.sort(key=itemgetter(col_name), reverse=reversed)
+        new_table.rows.sort(key=itemgetter(col_name), reverse=reverse)
         return new_table
 
     def copy(self):
