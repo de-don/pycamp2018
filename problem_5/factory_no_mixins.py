@@ -31,24 +31,19 @@ class BaseDict:
         # save key:value
         self.__dict__[key] = value
 
-    def __setattr__(self, key, value):
-        # Disable access to edit attributes
-        raise PermissionError
-
     def __getattr__(self, item):
         # If attr doesn't be found
         raise KeyError(f'Key {item} not found in dict')
-
-    def __delattr__(self, item):
-        if item not in self.__dict__:
-            raise KeyError(f'Key {item} not found in dict')
-        # Disable access to edit attributes
-        raise PermissionError
 
 
 ##################################################
 # protected
 ##################################################
+
+def protected__init__(self, input_dict, protected=None):
+    self._set_protected(protected if protected else [])
+    super(self.__class__, self).__init__(input_dict)
+
 
 def protected_add(self, key, value):
     # if value is dict, create new instance
@@ -91,30 +86,22 @@ def dict_factory(class_name, change=False, add=False, delete=False,
     """
 
     def my__setattr__(self, key, value):
-        if key not in self._protected:
-            if add and key not in self.__dict__:
-                self.__dict__[key] = value
-                return
-            if change and key in self.__dict__:
-                self.__dict__[key] = value
-                return
-            return super(self.__class__, self).__setattr__(key, value)
-
-        if protect and key in self._protected:
+        if key in self._protected:
             raise ProtectedError("this attribute is forbidden")
-        super(self.__class__, self).__setattr__(key, value)
+        if (add and (key not in self.__dict__)) or \
+                (change and (key in self.__dict__)):
+            self.__dict__[key] = value
+            return
+        raise PermissionError
 
     def my__delattr__(self, item):
+        if not delete:
+            raise PermissionError
         if item not in self.__dict__:
-            # key doesn't exists
-            return super(self.__class__, self).__delattr__(item)
+            raise KeyError(f'Key {item} not found in dict')
         if item in self._protected:
             raise ProtectedError("this attribute is forbidden")
-        if delete:
-            # allow delete exists keys
-            del self.__dict__[item]
-            return
-        return super(self.__class__, self).__delattr__(item)
+        del self.__dict__[item]
 
     attrs = {
         '__setattr__': my__setattr__,
@@ -124,11 +111,6 @@ def dict_factory(class_name, change=False, add=False, delete=False,
     if protect:
         attrs['_add'] = protected_add
         attrs['_set_protected'] = protected_set_protected
-
-        def my__init__(self, input_dict, protected=None):
-            self._set_protected(protected if protected else [])
-            super(self.__class__, self).__init__(input_dict)
-
-        attrs['__init__'] = my__init__
+        attrs['__init__'] = protected__init__
 
     return type(class_name, (BaseDict,), attrs)
