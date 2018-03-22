@@ -18,7 +18,7 @@ dict_2 = {
 
 # One test-class for create child classes with different permissions
 class FactoryReadableTest(TestCase):
-    permissions = dict(change=False, add=False, delete=False, protected=False)
+    permissions = dict(change=False, add=False, delete=False, protect=False)
 
     def setUp(self):
         self.cls = dict_factory("EditableRemovable", **self.permissions)
@@ -107,7 +107,7 @@ class FactoryReadableTest(TestCase):
     def test_delete_protected(self):
         if not self.permissions.get('delete', False):
             return
-        if not self.permissions.get('protected', False):
+        if not self.permissions.get('protect', False):
             return
 
         d1 = self.cls(dict_1, protected=['age'])
@@ -123,7 +123,7 @@ class FactoryReadableTest(TestCase):
     def test_change_protected(self):
         if not self.permissions.get('change', False):
             return
-        if not self.permissions.get('protected', False):
+        if not self.permissions.get('protect', False):
             return
 
         d1 = self.cls(dict_1, protected=['age'])
@@ -138,12 +138,12 @@ class FactoryReadableTest(TestCase):
 
 
 # Test-factory for test all combinations of permissions
-for change, add, delete, protected in product([False, True], repeat=4):
-    name = ["Edit", "Add", "Del", "Protected"]
-    flags = [change, add, delete, protected]
+for change, add, delete, protect in product([False, True], repeat=4):
+    name = ["Edit", "Add", "Del", "Protect"]
+    flags = [change, add, delete, protect]
     class_name = "TestPermissions_" + "".join(compress(name, flags))
 
     # save variable in globals, in order to Unittests runner can see this
     attrs = {"permissions": dict(change=change, add=add, delete=delete,
-                                 protected=protected)}
+                                 protect=protect)}
     globals()[class_name] = type(class_name, (FactoryReadableTest,), attrs)
