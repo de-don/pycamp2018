@@ -27,7 +27,7 @@ RemovableDictTest.cls = dict_factory("RemovableDict", change=True, add=True,
 
 
 class ProtectedDictTest(TestCase):
-    permissions = dict(change=True, add=True, delete=True, protected=True)
+    permissions = dict(change=True, add=True, delete=True, protect=True)
 
     def setUp(self):
         self.cls = dict_factory("Protected", **self.permissions)
