@@ -114,11 +114,12 @@ class Table:
         if not self.rows_count:
             return 'Empty'
 
-        lines = []
-        for row_num, row in enumerate(self.rows):
-            lines.append(f'{row_num}:')
-            lines.extend('    ' + line for line in str(row).splitlines())
-        return '\n'.join(lines)
+        def gen_lines():
+            for row_num, row in enumerate(self.rows):
+                yield f'{row_num}:'
+                yield from ('    ' + line for line in str(row).splitlines())
+
+        return '\n'.join(gen_lines())
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -184,9 +185,9 @@ class Table:
             Table: Table created from data of the database.
         """
         with sqlite3.connect(file_path) as con:
-            data = con.execute(f'PRAGMA table_info({table_name});')
+            data = con.execute('PRAGMA table_info(%s);' % table_name)
             head = (row[1] for row in data)
-            lines = con.execute(f'SELECT * FROM {table_name};')
+            lines = con.execute('SELECT * FROM %s;' % table_name)
             return cls(rows=lines, col_names=head)
 
     ##################################################
@@ -236,16 +237,20 @@ class Table:
         td = '    <td>{item}</td>'
         th = '  <th>{item}</th>'
 
-        th_items = [th.format(item=col_name) for col_name in self.headers]
-        tr_items = []
-        for row in self.rows:
-            td_items = [
-                td.format(item=row[col_name])
-                for col_name in self.headers
-            ]
-            tr_items.append(tr.format(item=('\n'.join(td_items))))
+        th_items = (th.format(item=col_name) for col_name in self.headers)
 
-        text = table.format(thead='\n'.join(th_items), tbody='\n'.join(tr_items))
+        def tr_items():
+            for row in self.rows:
+                td_items = (
+                    td.format(item=row[col_name])
+                    for col_name in self.headers
+                )
+                yield tr.format(item='\n'.join(td_items))
+
+        text = table.format(
+            thead='\n'.join(th_items),
+            tbody='\n'.join(tr_items())
+        )
 
         with open(file_path, 'w') as file:
             file.write(text)
