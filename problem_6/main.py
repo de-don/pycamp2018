@@ -92,7 +92,7 @@ class Entry:
             raise NotSupported(f'{func} not supported for {key_type.__name__}')
 
         # if function not found for type, find it in operator
-        if not getattr(key_type, func, None):
+        if not hasattr(key_type, func):
             key_type = operator
         return getattr(key_type, func)(cell_value, value)
 
