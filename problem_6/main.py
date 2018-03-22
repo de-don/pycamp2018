@@ -115,6 +115,14 @@ class Table:
             return 'Empty'
 
         def gen_lines():
+            """ Generator for create output lines.
+
+            Yield strings in next format:
+                '{row_num}:'
+                '    {col_name_1}: {col_value_1}'
+                '    {col_name_2}: {col_value_2}'
+                ...
+            """
             for row_num, row in enumerate(self.rows):
                 yield f'{row_num}:'
                 yield from ('    ' + line for line in str(row).splitlines())
