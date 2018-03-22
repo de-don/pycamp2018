@@ -1,6 +1,6 @@
-from itertools import compress
 from collections import defaultdict
 from copy import deepcopy
+from itertools import compress
 
 
 class ProtectedError(PermissionError):

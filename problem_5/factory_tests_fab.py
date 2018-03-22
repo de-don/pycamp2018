@@ -1,5 +1,5 @@
-from unittest import TestCase
 from itertools import product, compress
+from unittest import TestCase
 
 from problem_5.factory import dict_factory, ProtectedError
 
@@ -48,7 +48,6 @@ class FactoryReadableTest(TestCase):
         d2.skills.python = 'guru'
         self.assertEqual(d1.name, 'Joan')
         self.assertEqual(d2.skills.python, 'guru')
-
 
     def test_change_denied(self):
         if self.permissions.get('change', False):

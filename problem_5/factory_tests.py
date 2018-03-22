@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 from problem_5.factory import dict_factory, ProtectedError
 from problem_5.main_tests import (
     SimpleDictTest,
@@ -5,7 +7,6 @@ from problem_5.main_tests import (
     ExpandableDictTest,
     RemovableDictTest,
 )
-from unittest import TestCase
 
 # dictionaries for tests
 dict_1 = {'name': 'Denis', 'age': 22}
