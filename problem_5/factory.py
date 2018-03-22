@@ -134,7 +134,7 @@ class ProtectedMixin:
 
 
 def dict_factory(class_name, change=False, add=False, delete=False,
-                 protected=False):
+                 protect=False):
     """ Function to create class with selected permissions.
 
     Args:
@@ -148,7 +148,7 @@ def dict_factory(class_name, change=False, add=False, delete=False,
         class: New class for storing dict with selected permissions.
     """
     bases = [ProtectedMixin, DelMixin, AddMixin, EditMixin, BaseDict]
-    flags = [protected, delete, add, change, True]
+    flags = [protect, delete, add, change, True]
     bases = compress(bases, flags)
 
     return type(class_name, tuple(bases), {})
