@@ -1,4 +1,5 @@
 import operator
+from contextlib import suppress
 from functools import wraps, reduce
 from itertools import chain, filterfalse
 
@@ -216,10 +217,8 @@ class Set:
 
     def discard(self, item):
         """ Remove an item from a Set if it is a member, else nothing."""
-        try:
+        with suppress(KeyError):
             self.remove(item)
-        except KeyError:
-            pass
 
     def pop(self):
         """ Remove and return an element from Set.

@@ -4,6 +4,7 @@ import json
 import operator
 import sqlite3
 from collections import OrderedDict
+from contextlib import suppress
 from functools import partial
 from operator import itemgetter
 
@@ -55,11 +56,9 @@ class Entry:
 
         # check each type
         for cur_type in types:
-            try:
+            with suppress(ValueError, TypeError):
                 new_item = cur_type(item)
                 return new_item
-            except (ValueError, TypeError):
-                pass
         # if type not be found, leave str type
         return item
 
