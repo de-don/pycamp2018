@@ -392,6 +392,7 @@ class Table:
         """ List of column names """
         return self.col_names[:]
 
+    @staticmethod
     def add_filter(types, name=None):
         """ Decorator fabric to create decorator for add filter function
         Args:
@@ -400,12 +401,13 @@ class Table:
 
         Example:
             1) decorated and set custom name
-            >> @Table.add_filter(types=(datetime.datetime, ), name="month")
-            >> def date_month(x, value):
-            >>     return x.month == value
+            >>> @Table.add_filter(types=(datetime.datetime, ), name="month")
+            >>> def date_month(x, value):
+            ...     return x.month == value
+
 
             2) using built-in method and using his name ('lt')
-            >> Table.add_filter(types=(int, datetime.datetime))(operator.lt)
+            >>> Table.add_filter(types=(int, datetime.datetime))(operator.lt)
         """
 
         def add_filter(func):
