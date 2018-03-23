@@ -383,11 +383,12 @@ class Table:
 
         Example:
             1) decorated and set custom name
-            >> @table_filter(types=(datetime.datetime, ), name="month")
+            >> @Table.add_filter(types=(datetime.datetime, ), name="month")
             >> def date_month(x, value):
             >>     return x.month == value
+
             2) using built-in method and using his name ('lt')
-            >> table_filter(types=(int, datetime.datetime))(operator.lt)
+            >> Table.add_filter(types=(int, datetime.datetime))(operator.lt)
         """
 
         def add_filter(func):
