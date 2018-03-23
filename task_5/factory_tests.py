@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from problem_5.factory import dict_factory, ProtectedError
-from problem_5.main_tests import (
+from task_5.factory import dict_factory, ProtectedError
+from task_5.main_tests import (
     SimpleDictTest,
     EditableDictTest,
     ExpandableDictTest,
