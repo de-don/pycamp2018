@@ -198,6 +198,20 @@ class TableTest(TestCase):
         self.assertEqual(data_filtered.count(), 1)
         self.assertTrue(data_filtered[0]['salary'] > 200)
 
+    def test_filter_date_gt(self):
+        data = Table.from_csv(self.input['csv'])
+        d = datetime.datetime(year=1972, day=12, month=12)
+
+        data_filtered = data.filter(
+            birthday=d,
+        )
+        self.assertEqual(data_filtered.count(), 1)
+        self.assertTrue(data_filtered[0]['salary'] > 200)
+
+    ##################################################
+    # Exports
+    ##################################################
+
     def test_export_to_csv(self):
         data1 = Table.from_csv(self.input['csv'])
         data1.to_csv(self.tmp_name)
