@@ -8,6 +8,30 @@ from contextlib import suppress
 from functools import partial
 from operator import itemgetter
 
+# supported types and their functions for filtering
+SUPPORTED_FUNCS = {
+    str: {
+        'startswith': str.startswith,
+        'endswith': str.endswith
+    },
+    int: {
+        'gt': operator.gt,
+        'lt': operator.lt,
+        'ge': operator.ge,
+        'le': operator.lt,
+    },
+    datetime.datetime: {
+        'gt': operator.gt,
+        'lt': operator.lt,
+        'ge': operator.ge,
+        'le': operator.lt,
+        'year': lambda x, value: x.year == value,
+        'day': lambda x, value: x.day == value,
+        'month': lambda x, value: x.month == value,
+    },
+
+}
+
 
 class NotSupported(ValueError):
     """ Error raise which function not supported """
@@ -16,30 +40,6 @@ class NotSupported(ValueError):
 
 class Entry:
     """ Class for storing one table row. """
-
-    # supported types and their functions for filtering
-    SUPPORTED_FUNCS = {
-        str: {
-            'startswith': str.startswith,
-            'endswith': str.endswith
-        },
-        int: {
-            'gt': operator.gt,
-            'lt': operator.lt,
-            'ge': operator.ge,
-            'le': operator.lt,
-        },
-        datetime.datetime: {
-            'gt': operator.gt,
-            'lt': operator.lt,
-            'ge': operator.ge,
-            'le': operator.lt,
-            'year': lambda x, value: x.year == value,
-            'day': lambda x, value: x.day == value,
-            'month': lambda x, value: x.month == value,
-        },
-
-    }
 
     def __init__(self, row, col_names):
         """
@@ -105,12 +105,11 @@ class Entry:
             return cell_value == value
 
         key_type = cell_value.__class__
-        # and check function on supporting
-        funcs_for_type = self.SUPPORTED_FUNCS.get(key_type, [])
-        if func not in funcs_for_type:
+        filter_function = SUPPORTED_FUNCS.get(key_type, {}).get(func, None)
+        if filter_function is None:
             raise NotSupported(f'{func} not supported for {key_type.__name__}')
 
-        return funcs_for_type[func](cell_value, value)
+        return filter_function(cell_value, value)
 
 
 class Table:
