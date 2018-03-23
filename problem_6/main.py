@@ -9,7 +9,8 @@ from problem_6 import (
     CsvProvider,
     JsonProvider,
     Sqlite3Provider,
-    HtmlProvider
+    HtmlProvider,
+    YamlProvider
 )
 
 # supported types and their functions for filtering
@@ -211,6 +212,21 @@ class Table:
             table_name=table_name
         ).load()
 
+    @classmethod
+    def from_yaml(cls, file_path):
+        """ Load Table from yaml file.
+
+        Args:
+            file_path(str): path to yaml file.
+
+        Returns:
+            Table: Table created from data of the file.
+        """
+        return TableDataProvider(
+            YamlProvider,
+            file_path=file_path,
+        ).load()
+
     ##################################################
     # export methods
     ##################################################
@@ -247,6 +263,17 @@ class Table:
         """
         return TableDataProvider(
             HtmlProvider,
+            file_path=file_path,
+        ).save(self)
+
+    def to_yaml(self, file_path):
+        """ Save Table to yaml file.
+
+        Args:
+            file_path(str): path to new yaml file.
+        """
+        return TableDataProvider(
+            YamlProvider,
             file_path=file_path,
         ).save(self)
 
@@ -418,5 +445,5 @@ class TableDataProvider:
 
     def save(self, table):
         head = table.headers
-        lines = (map(itemgetter(1), row) for row in table.rows)
+        lines = (map(str, map(itemgetter(1), row)) for row in table.rows)
         return self.provider.save_data(head, lines)

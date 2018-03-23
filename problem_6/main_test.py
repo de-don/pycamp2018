@@ -13,6 +13,7 @@ class TableTest(TestCase):
             'csv': 'inputs/input.csv',
             'json': 'inputs/input.json',
             'sqlite3': 'inputs/input.db',
+            'yaml': 'inputs/input.yaml',
         }
 
         self.init_result = '\n'.join([
@@ -42,6 +43,10 @@ class TableTest(TestCase):
 
     def test_init_from_sqlite3(self):
         data = Table.from_sqlite3(self.input['sqlite3'], 'test_table')
+        self.assertEqual(str(data), self.init_result)
+
+    def test_init_from_yaml(self):
+        data = Table.from_yaml(self.input['yaml'])
         self.assertEqual(str(data), self.init_result)
 
     def test_count(self):
@@ -280,4 +285,13 @@ class TableTest(TestCase):
         data1 = Table.from_csv(self.input['csv'])
         data1.to_html(self.tmp_name)
         # don't now how check
+        os.remove(self.tmp_name)
+
+    def test_export_to_yaml(self):
+        data1 = Table.from_yaml(self.input['yaml'])
+        data1.to_yaml(self.tmp_name)
+
+
+        data2 = Table.from_yaml(self.tmp_name)
+        self.assertEqual(data1, data2)
         os.remove(self.tmp_name)

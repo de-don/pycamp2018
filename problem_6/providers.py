@@ -1,6 +1,9 @@
 import csv
 import json
 import sqlite3
+from collections import OrderedDict
+
+import yaml
 
 
 class CsvProvider:
@@ -87,3 +90,26 @@ class HtmlProvider:
 
         with open(self.file_path, 'w') as file:
             file.write(text)
+
+
+class YamlProvider:
+    def __init__(self, config):
+        self.file_path = config.get('file_path')
+
+    def get_data(self):
+        with open(self.file_path, 'r') as file:
+            lines = yaml.load(file)
+            head = lines[0].keys()
+            rows = (
+                [line[col_name] for col_name in head]
+                for line in lines
+            )
+            return head, rows
+
+    def save_data(self, head, lines):
+        with open(self.file_path, 'w') as file:
+            items = [
+                OrderedDict(zip(head, line))
+                for line in lines
+            ]
+            yaml.dump(items, file, default_flow_style=False)

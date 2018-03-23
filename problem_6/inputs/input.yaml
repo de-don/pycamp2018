@@ -1,0 +1,13 @@
+---
+-
+    name: john
+    birthday: 1988-12-12
+    salary: 100
+-
+    name: kevin
+    birthday: 1972-12-12
+    salary: 200
+-
+    name: barney
+    birthday: 1972-12-12
+    salary: 300
