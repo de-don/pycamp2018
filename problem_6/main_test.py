@@ -3,7 +3,7 @@ import os
 import tempfile
 from unittest import TestCase
 
-from problem_6.main import NotSupported, Table
+from problem_6 import NotSupported, Table
 
 
 class TableTest(TestCase):

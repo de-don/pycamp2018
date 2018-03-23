@@ -5,7 +5,7 @@ from contextlib import suppress
 from functools import partial
 from operator import itemgetter
 
-from problem_6.providers import (
+from problem_6 import (
     CsvProvider,
     JsonProvider,
     Sqlite3Provider,
