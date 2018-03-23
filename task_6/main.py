@@ -436,14 +436,17 @@ class Table:
 
 
 class TableDataProvider:
-    def __init__(self, proveder_class, **kwargs):
-        self.provider = proveder_class(kwargs)
+    """ Class for load and save data from different inputs """
+    def __init__(self, provider_class, **kwargs):
+        self.provider = provider_class(kwargs)
 
     def load(self):
-        head, lines = self.provider.get_data()
+        """ Load Table from provider """
+        head, lines = self.provider.load()
         return Table(rows=lines, col_names=head)
 
     def save(self, table):
+        """ Save Table to provider """
         head = table.headers
         lines = (map(str, map(itemgetter(1), row)) for row in table.rows)
-        return self.provider.save_data(head, lines)
+        return self.provider.save(head, lines)

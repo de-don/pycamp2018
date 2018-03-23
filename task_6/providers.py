@@ -11,12 +11,12 @@ class CsvProvider:
         self.file_path = config.get('file_path')
         self.delimiter = config.get('delimiter', ';')
 
-    def get_data(self):
+    def load(self):
         with open(self.file_path, 'r') as file:
             reader = csv.reader(file, delimiter=self.delimiter)
             return next(reader), list(reader)
 
-    def save_data(self, head, lines):
+    def save(self, head, lines):
         with open(self.file_path, 'w') as file:
             writer = csv.writer(file, delimiter=self.delimiter)
             writer.writerow(head)
@@ -27,7 +27,7 @@ class JsonProvider:
     def __init__(self, config):
         self.file_path = config.get('file_path')
 
-    def get_data(self):
+    def load(self):
         with open(self.file_path, 'r') as file:
             data = json.load(file)
             head = list(data.keys())
@@ -39,7 +39,7 @@ class JsonProvider:
             )
             return head, lines
 
-    def save_data(self, head, lines):
+    def save(self, head, lines):
         # convert list of map to list of list
         lines = [list(row) for row in lines]
         dictionary = {
@@ -56,7 +56,7 @@ class Sqlite3Provider:
         self.file_path = config.get('file_path')
         self.table_name = config.get('table_name')
 
-    def get_data(self):
+    def load(self):
         with sqlite3.connect(self.file_path) as con:
             data = con.execute('PRAGMA table_info(%s);' % self.table_name)
             head = (row[1] for row in data)
@@ -68,7 +68,7 @@ class HtmlProvider:
     def __init__(self, config):
         self.file_path = config.get('file_path')
 
-    def save_data(self, head, lines):
+    def save(self, head, lines):
         table = '<table><thead>\n{thead}\n</thead>' \
                 '<tbody>\n{tbody}\n</tbody></table>'
 
@@ -96,7 +96,7 @@ class YamlProvider:
     def __init__(self, config):
         self.file_path = config.get('file_path')
 
-    def get_data(self):
+    def load(self):
         with open(self.file_path, 'r') as file:
             lines = yaml.load(file)
             head = lines[0].keys()
@@ -106,7 +106,7 @@ class YamlProvider:
             )
             return head, rows
 
-    def save_data(self, head, lines):
+    def save(self, head, lines):
         with open(self.file_path, 'w') as file:
             items = [
                 OrderedDict(zip(head, line))
