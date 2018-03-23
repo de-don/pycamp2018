@@ -1,12 +1,6 @@
 from unittest import TestCase
 
 from task_5.factory import dict_factory, ProtectedError
-from task_5.main_tests import (
-    SimpleDictTest,
-    EditableDictTest,
-    ExpandableDictTest,
-    RemovableDictTest,
-)
 
 # dictionaries for tests
 dict_1 = {'name': 'Denis', 'age': 22}
@@ -19,12 +13,203 @@ dict_2 = {
     }
 }
 
-# add tests from `main_tests` and change classes to results of factories
-SimpleDictTest.cls = dict_factory("SimpleDict")
-EditableDictTest.cls = dict_factory("EditableDict", change=True)
-ExpandableDictTest.cls = dict_factory("ExpandableDict", change=True, add=True)
-RemovableDictTest.cls = dict_factory("RemovableDict", change=True, add=True,
+class SimpleDictTest(TestCase):
+    cls = dict_factory("SimpleDict")
+
+    def test_init(self):
+        d = self.cls(dict_1)
+        self.assertEqual(d.name, dict_1['name'])
+        self.assertEqual(d.age, dict_1['age'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # try to add new attr
+        with self.assertRaises(PermissionError):
+            d.title = 'example'
+
+        # try to edit already exist attr
+        with self.assertRaises(PermissionError):
+            d.name = 'Joan'
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.name
+
+    def test_2d_dict(self):
+        d = self.cls(dict_2)
+
+        self.assertEqual(d.name, dict_2['name'])
+        self.assertEqual(d.age, dict_2['age'])
+        self.assertEqual(d.skills.python, dict_2['skills']['python'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # try to add new attr
+        with self.assertRaises(PermissionError):
+            d.skills.cpp = 'guru'
+
+        # try to edit already exist attr
+        with self.assertRaises(PermissionError):
+            d.skills.python = 'guru'
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.skills.python
+
+
+class EditableDictTest(TestCase):
+    cls = dict_factory("EditableDict", change=True)
+
+    def test_init(self):
+        d = self.cls({'name': 'Denis', 'age': 22})
+        self.assertEqual(d.name, dict_1['name'])
+        self.assertEqual(d.age, dict_1['age'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # try to add new attr
+        with self.assertRaises(PermissionError):
+            d.title = 'example'
+
+        # edit to already exist attr
+        d.name = 'Joan'
+        self.assertEqual(d.name, 'Joan')
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.name
+
+    def test_2d_dict(self):
+        d = self.cls(dict_2)
+
+        self.assertEqual(d.name, dict_2['name'])
+        self.assertEqual(d.age, dict_2['age'])
+        self.assertEqual(d.skills.python, dict_2['skills']['python'])
+
+        # try get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # try add new attr
+        with self.assertRaises(PermissionError):
+            d.skills.cpp = 'guru'
+
+        # edit already exist attr
+        d.skills.python = 'guru'
+        self.assertEqual(d.skills.python, 'guru')
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.skills.python
+
+
+class ExpandableDictTest(TestCase):
+    cls = dict_factory("ExpandableDict", change=True, add=True)
+
+    def test_init(self):
+        d = self.cls({'name': 'Denis', 'age': 22})
+        self.assertEqual(d.name, dict_1['name'])
+        self.assertEqual(d.age, dict_1['age'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.title = 'example'
+        self.assertEqual(d.title, 'example')
+
+        # edit to already exist attr
+        d.name = 'Joan'
+        self.assertEqual(d.name, 'Joan')
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.name
+
+    def test_2d_dict(self):
+        d = self.cls(dict_2)
+
+        self.assertEqual(d.name, dict_2['name'])
+        self.assertEqual(d.age, dict_2['age'])
+        self.assertEqual(d.skills.python, dict_2['skills']['python'])
+
+        # try get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.skills.cpp = 'guru'
+        self.assertEqual(d.skills.cpp, 'guru')
+
+        # edit already exist attr
+        d.skills.python = 'guru'
+        self.assertEqual(d.skills.python, 'guru')
+
+        # try to del attr
+        with self.assertRaises(PermissionError):
+            del d.skills.python
+
+
+class RemovableDictTest(TestCase):
+    cls = dict_factory("RemovableDict", change=True, add=True,
                                      delete=True)
+
+    def test_init(self):
+        d = self.cls({'name': 'Denis', 'age': 22})
+        self.assertEqual(d.name, dict_1['name'])
+        self.assertEqual(d.age, dict_1['age'])
+
+        # try to get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.title = 'example'
+        self.assertEqual(d.title, 'example')
+
+        # edit to already exist attr
+        d.name = 'Joan'
+        self.assertEqual(d.name, 'Joan')
+
+        # del attr
+        del d.name
+        with self.assertRaises(KeyError):
+            d.name
+
+    def test_2d_dict(self):
+        d = self.cls(dict_2)
+
+        self.assertEqual(d.name, dict_2['name'])
+        self.assertEqual(d.age, dict_2['age'])
+        self.assertEqual(d.skills.python, dict_2['skills']['python'])
+
+        # try get not exist attribute
+        with self.assertRaises(KeyError):
+            d.title
+
+        # add new attr
+        d.skills.cpp = 'guru'
+        self.assertEqual(d.skills.cpp, 'guru')
+
+        # edit already exist attr
+        d.skills.python = 'guru'
+        self.assertEqual(d.skills.python, 'guru')
+
+        # del attr
+        del d.skills.python
+        with self.assertRaises(KeyError):
+            d.skills.python
+
+        # try to del again
+        with self.assertRaises(KeyError):
+            del d.skills.python
 
 
 class ProtectedDictTest(TestCase):
