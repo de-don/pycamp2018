@@ -3,7 +3,7 @@ import os
 import tempfile
 from unittest import TestCase
 
-from problem_6.main import NotSupported, Table, table_filter
+from problem_6.main import NotSupported, Table
 
 
 class TableTest(TestCase):
@@ -234,7 +234,7 @@ class TableTest(TestCase):
     def test_filter_custom(self):
         data = Table.from_csv(self.input['csv'])
 
-        @table_filter(types=(int,))
+        @Table.add_filter(types=(int,))
         def multiple(x, value):
             return not x % value
 
@@ -247,7 +247,7 @@ class TableTest(TestCase):
     def test_filter_custom_with_custom_name(self):
         data = Table.from_csv(self.input['csv'])
 
-        @table_filter(types=(datetime.datetime,), name='year_not_multiple')
+        @Table.add_filter(types=(datetime.datetime,), name='year_not_multiple')
         def other_name(x, value):
             return x.year % value
 
