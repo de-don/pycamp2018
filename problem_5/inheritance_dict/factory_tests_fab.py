@@ -1,7 +1,7 @@
 from itertools import product, compress
 from unittest import TestCase
 
-from problem_5_2.factory import dict_factory, ProtectedError
+from problem_5.inheritance_dict.factory import dict_factory, ProtectedError
 
 # dictionaries for tests
 dict_1 = {'name': 'Denis', 'age': 22, 'lists': [1, 2, 3]}

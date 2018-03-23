@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from problem_5_2.inheritance import (
+from problem_5.inheritance_dict.inheritance import (
     SimpleDict,
     EditableDict,
     ExpandableDict,
