@@ -19,9 +19,26 @@ class Entry:
 
     # supported types and their functions for filtering
     SUPPORTED_FUNCS = {
-        str: ['startswith', 'endswith'],
-        int: ['gt', 'lt', 'ge', 'le'],
-        datetime.datetime: ['gt', 'lt', 'ge', 'le'],
+        str: {
+            'startswith': str.startswith,
+            'endswith': str.endswith
+        },
+        int: {
+            'gt': operator.gt,
+            'lt': operator.lt,
+            'ge': operator.ge,
+            'le': operator.lt,
+        },
+        datetime.datetime: {
+            'gt': operator.gt,
+            'lt': operator.lt,
+            'ge': operator.ge,
+            'le': operator.lt,
+            'year': lambda x, value: x.year == value,
+            'day': lambda x, value: x.day == value,
+            'month': lambda x, value: x.month == value,
+        },
+
     }
 
     def __init__(self, row, col_names):
@@ -82,19 +99,18 @@ class Entry:
 
     def check(self, key, value, func=None):
         cell_value = self[key]
+
         if func is None:
             # if it is simple filtering without function
             return cell_value == value
 
         key_type = cell_value.__class__
         # and check function on supporting
-        if func not in self.SUPPORTED_FUNCS.get(key_type, []):
+        funcs_for_type = self.SUPPORTED_FUNCS.get(key_type, [])
+        if func not in funcs_for_type:
             raise NotSupported(f'{func} not supported for {key_type.__name__}')
 
-        # if function not found for type, find it in operator
-        if not hasattr(key_type, func):
-            key_type = operator
-        return getattr(key_type, func)(cell_value, value)
+        return funcs_for_type[func](cell_value, value)
 
 
 class Table:

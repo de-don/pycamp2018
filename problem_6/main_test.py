@@ -200,13 +200,36 @@ class TableTest(TestCase):
 
     def test_filter_date_gt(self):
         data = Table.from_csv(self.input['csv'])
-        d = datetime.datetime(year=1972, day=12, month=12)
+        d = datetime.datetime(year=1972, day=13, month=12)
 
         data_filtered = data.filter(
-            birthday=d,
+            birthday__lt=d,
         )
-        self.assertEqual(data_filtered.count(), 1)
-        self.assertTrue(data_filtered[0]['salary'] > 200)
+        self.assertEqual(data_filtered.count(), 2)
+
+    def test_filter_date_year(self):
+        data = Table.from_csv(self.input['csv'])
+
+        data_filtered = data.filter(
+            birthday__year=1972,
+        )
+        self.assertEqual(data_filtered.count(), 2)
+
+    def test_filter_date_month(self):
+        data = Table.from_csv(self.input['csv'])
+
+        data_filtered = data.filter(
+            birthday__month=12,
+        )
+        self.assertEqual(data_filtered.count(), 3)
+
+    def test_filter_date_day(self):
+        data = Table.from_csv(self.input['csv'])
+
+        data_filtered = data.filter(
+            birthday__day=12,
+        )
+        self.assertEqual(data_filtered.count(), 3)
 
     ##################################################
     # Exports
