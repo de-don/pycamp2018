@@ -24,13 +24,55 @@ SUPPORTED_FUNCS = {
         'gt': operator.gt,
         'lt': operator.lt,
         'ge': operator.ge,
-        'le': operator.lt,
+        'le': operator.le,
         'year': lambda x, value: x.year == value,
         'day': lambda x, value: x.day == value,
         'month': lambda x, value: x.month == value,
     },
 
 }
+
+
+def table_filter(types, name=None):
+    """ Decorator fabric to create decorator for add filter function
+    Args:
+        types(tuple): tuple of supported types
+        name: name filter, for using {column_name}__{name}=value
+
+    Example:
+        1) decorated and set custom name
+        >> @table_filter(types=(datetime.datetime, ), name="month")
+        >> def date_month(x, value):
+        >>     return x.month == value
+        2) using built-in method and using his name ('lt')
+        >> table_filter(types=(int, datetime.datetime))(operator.lt)
+    """
+
+    def add_filter(func):
+        """ Decorator which add func to SUPPORTED_FUNCS for filtering"""
+        nonlocal name
+
+        # check count arguments
+        if hasattr(func, '__code__'):
+            count_args = func.__code__.co_argcount
+        else:
+            count_args = 2
+        if count_args != 2:
+            raise TypeError("Decorated function must have 2 positional "
+                            "arguments, but %s given" % count_args)
+
+        # get new filter name
+        name = func.__name__ if (name is None) else name
+
+        # insert function to supported
+        for current_type in types:
+            if current_type not in SUPPORTED_FUNCS:
+                SUPPORTED_FUNCS[current_type] = {}
+            SUPPORTED_FUNCS[current_type][name] = func
+
+        return func
+
+    return add_filter
 
 
 class NotSupported(ValueError):

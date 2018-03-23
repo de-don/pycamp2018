@@ -3,7 +3,7 @@ import os
 import tempfile
 from unittest import TestCase
 
-from problem_6.main import NotSupported, Table
+from problem_6.main import NotSupported, Table, table_filter
 
 
 class TableTest(TestCase):
@@ -229,6 +229,31 @@ class TableTest(TestCase):
         data_filtered = data.filter(
             birthday__day=12,
         )
+        self.assertEqual(data_filtered.count(), 3)
+
+    def test_filter_custom(self):
+        data = Table.from_csv(self.input['csv'])
+
+        @table_filter(types=(int,))
+        def multiple(x, value):
+            return not x % value
+
+        data_filtered = data.filter(salary__multiple=10)
+        self.assertEqual(data_filtered.count(), 3)
+
+        data_filtered = data.filter(salary__multiple=30)
+        self.assertEqual(data_filtered.count(), 1)
+
+    def test_filter_custom_with_custom_name(self):
+        data = Table.from_csv(self.input['csv'])
+
+        @table_filter(types=(datetime.datetime,), name='year_not_multiple')
+        def other_name(x, value):
+            return x.year % value
+
+        data_filtered = data.filter(birthday__year_not_multiple=2)
+        self.assertEqual(data_filtered.count(), 0)
+        data_filtered = data.filter(birthday__year_not_multiple=3)
         self.assertEqual(data_filtered.count(), 3)
 
     ##################################################
