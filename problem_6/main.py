@@ -5,7 +5,12 @@ from contextlib import suppress
 from functools import partial
 from operator import itemgetter
 
-from problem_6.providers import CsvProvider, JsonProvider, Sqlite3Provider, HtmlProvider
+from problem_6.providers import (
+    CsvProvider,
+    JsonProvider,
+    Sqlite3Provider,
+    HtmlProvider
+)
 
 # supported types and their functions for filtering
 SUPPORTED_FUNCS = {
@@ -32,24 +37,9 @@ SUPPORTED_FUNCS = {
 }
 
 
-
 class NotSupported(ValueError):
     """ Error raise which function not supported """
     pass
-
-
-class TableDataProvider:
-    def __init__(self, proveder_class, **kwargs):
-        self.provider = proveder_class(kwargs)
-
-    def load(self):
-        head, lines = self.provider.get_data()
-        return Table(rows=lines, col_names=head)
-
-    def save(self, table):
-        head = table.headers
-        lines = (map(itemgetter(1), row) for row in table.rows)
-        return self.provider.save_data(head, lines)
 
 
 class Entry:
@@ -416,3 +406,17 @@ class Table:
             return func
 
         return add_filter
+
+
+class TableDataProvider:
+    def __init__(self, proveder_class, **kwargs):
+        self.provider = proveder_class(kwargs)
+
+    def load(self):
+        head, lines = self.provider.get_data()
+        return Table(rows=lines, col_names=head)
+
+    def save(self, table):
+        head = table.headers
+        lines = (map(itemgetter(1), row) for row in table.rows)
+        return self.provider.save_data(head, lines)
