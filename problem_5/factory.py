@@ -46,6 +46,15 @@ class BaseDict:
         # Disable access to edit attributes
         raise PermissionError
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, key, value):
+        return setattr(self, key, value)
+
+    def __delitem__(self, item):
+        return delattr(self, item)
+
 
 class EditMixin:
     """ Mixin which allow to edit a values by attribute. """

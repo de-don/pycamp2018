@@ -26,7 +26,7 @@ class FactoryReadableTest(TestCase):
     def test_init_and_read_1(self):
         d = self.cls(dict_not_embedded)
         self.assertEqual(d.name, dict_not_embedded['name'])
-        self.assertEqual(d.lists, dict_not_embedded['lists'])
+        self.assertEqual(d['lists'], dict_not_embedded['lists'])
         # try to get not exist attribute
         with self.assertRaises(KeyError):
             d.title
@@ -34,6 +34,10 @@ class FactoryReadableTest(TestCase):
     def test_init_and_read_2(self):
         d = self.cls(dict_embedded)
         self.assertEqual(d.skills.python, dict_embedded['skills']['python'])
+        self.assertEqual(
+            d['skills']['python'],
+            dict_embedded['skills']['python']
+        )
         # try to get not exist attribute
         with self.assertRaises(KeyError):
             d.skills.cpp
@@ -44,6 +48,8 @@ class FactoryReadableTest(TestCase):
         d1 = self.cls(dict_not_embedded)
         d1.name = 'Joan'
         self.assertEqual(d1.name, 'Joan')
+        d1['name'] = 'Joan2'
+        self.assertEqual(d1.name, 'Joan2')
 
     def test_change_denied_2(self):
         if self.permissions.get('change', False):
