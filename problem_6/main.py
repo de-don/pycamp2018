@@ -1,12 +1,11 @@
-import csv
 import datetime
-import json
 import operator
-import sqlite3
 from collections import OrderedDict
 from contextlib import suppress
 from functools import partial
 from operator import itemgetter
+
+from problem_6.providers import CsvProvider, JsonProvider, Sqlite3Provider, HtmlProvider
 
 # supported types and their functions for filtering
 SUPPORTED_FUNCS = {
@@ -78,6 +77,20 @@ def table_filter(types, name=None):
 class NotSupported(ValueError):
     """ Error raise which function not supported """
     pass
+
+
+class TableDataProvider:
+    def __init__(self, proveder_class, **kwargs):
+        self.provider = proveder_class(kwargs)
+
+    def load(self):
+        head, lines = self.provider.get_data()
+        return Table(rows=lines, col_names=head)
+
+    def save(self, table):
+        head = table.headers
+        lines = (map(itemgetter(1), row) for row in table.rows)
+        return self.provider.save_data(head, lines)
 
 
 class Entry:
@@ -211,11 +224,11 @@ class Table:
         Returns:
             Table: Table created from data of the file.
         """
-        with open(file_path, 'r') as file:
-            reader = csv.reader(file, delimiter=delimiter)
-            head = next(reader)
-            lines = reader
-            return cls(rows=lines, col_names=head)
+        return TableDataProvider(
+            CsvProvider,
+            file_path=file_path,
+            delimiter=delimiter,
+        ).load()
 
     @classmethod
     def from_json(cls, file_path):
@@ -227,16 +240,10 @@ class Table:
         Returns:
             Table: Table created from data of the file.
         """
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-            head = list(data.keys())
-            columns = data.values()
-            rows_count = len(data[head[0]])
-            lines = (
-                (column[i] for column in columns)
-                for i in range(rows_count)
-            )
-            return cls(rows=lines, col_names=head)
+        return TableDataProvider(
+            JsonProvider,
+            file_path=file_path,
+        ).load()
 
     @classmethod
     def from_sqlite3(cls, file_path, table_name):
@@ -249,11 +256,11 @@ class Table:
         Returns:
             Table: Table created from data of the database.
         """
-        with sqlite3.connect(file_path) as con:
-            data = con.execute('PRAGMA table_info(%s);' % table_name)
-            head = (row[1] for row in data)
-            lines = con.execute('SELECT * FROM %s;' % table_name)
-            return cls(rows=lines, col_names=head)
+        return TableDataProvider(
+            Sqlite3Provider,
+            file_path=file_path,
+            table_name=table_name
+        ).load()
 
     ##################################################
     # export methods
@@ -266,13 +273,11 @@ class Table:
             file_path(str): path to new csv file.
             delimiter(str): csv delimiter.
         """
-
-        with open(file_path, 'w') as file:
-            writer = csv.writer(file, delimiter=delimiter)
-
-            writer.writerow(self.headers)
-            for row in self.rows:
-                writer.writerow(map(itemgetter(1), row))
+        return TableDataProvider(
+            CsvProvider,
+            file_path=file_path,
+            delimiter=delimiter,
+        ).save(self)
 
     def to_json(self, file_path):
         """ Save Table to json file.
@@ -280,13 +285,10 @@ class Table:
         Args:
             file_path(str): path to new json file.
         """
-
-        dictionary = {
-            column_name: [str(row[column_name]) for row in self.rows]
-            for column_name in self.headers
-        }
-        with open(file_path, 'w') as file:
-            json.dump(dictionary, file)
+        return TableDataProvider(
+            JsonProvider,
+            file_path=file_path,
+        ).save(self)
 
     def to_html(self, file_path):
         """ Save Table to html file.
@@ -294,31 +296,10 @@ class Table:
         Args:
             file_path(str): path to new html file.
         """
-
-        table = '<table><thead>\n{thead}\n</thead>' \
-                '<tbody>\n{tbody}\n</tbody></table>'
-
-        tr = '  <tr>\n{item}\n  </tr>'
-        td = '    <td>{item}</td>'
-        th = '  <th>{item}</th>'
-
-        th_items = (th.format(item=col_name) for col_name in self.headers)
-
-        def tr_items():
-            for row in self.rows:
-                td_items = (
-                    td.format(item=row[col_name])
-                    for col_name in self.headers
-                )
-                yield tr.format(item='\n'.join(td_items))
-
-        text = table.format(
-            thead='\n'.join(th_items),
-            tbody='\n'.join(tr_items())
-        )
-
-        with open(file_path, 'w') as file:
-            file.write(text)
+        return TableDataProvider(
+            HtmlProvider,
+            file_path=file_path,
+        ).save(self)
 
     ##################################################
     # other methods
