@@ -17,7 +17,15 @@ TEXTS = {
 
 
 def get_file_sha1(file_path):
-    """ This function returns the SHA-1 hash of the file """
+    """ This function returns the SHA-1 hash of the file
+
+    Args:
+        file_path(PurePath): path to file
+
+    Returns:
+        str: sha1 hash of file content
+
+    """
     h = hashlib.sha1()
 
     # open file for reading in binary mode
@@ -33,30 +41,56 @@ def get_file_sha1(file_path):
     return h.hexdigest()
 
 
-def file_data(item):
-    """ Function to get file sha1, if file not empty, else None"""
-    size = item.stat().st_size
-    if size == 0:
-        return None
-    return get_file_hash(item), item
-
-
 def non_empty_files(iter_files):
+    """ Return size of each not_empty file in iter_files.
+
+    Args:
+        iter_files(iter): Iterator of PurePath objects
+
+    Yields:
+        (int, PurePath): pair of size of file, anf his path.
+
+    """
     for file in iter_files:
         size = file.stat().st_size
         if size:
             yield size, file
 
+
 def recursion_finder(path):
-    """ Recursion generator to find all files """
+    """ Recursion generator to find all files in directory
+
+    Args:
+        path(PurePath): path to directoey
+
+    Yields:
+        PurePath: files in directory or sub-directory's
+
+    """
+
     for item in path.iterdir():
         if item.is_dir():
             yield from recursion_finder(item)
             continue
-        yield item
+        if item.exists():
+            yield item
 
 
 def process_str_of_nums(numbers, range_num=None):
+    """ Convert string with nums sep by spases to int's
+
+    Args:
+        numbers(str): numbers separated by space.
+        range_num(seq): pair of min and max allowed number.
+
+    Yields:
+        int: number from numbers string.
+
+    Raises:
+        IndexError: if numbers not in range_num
+
+    """
+
     for num in numbers.split(" "):
         num = int(num.strip())
 
@@ -69,18 +103,30 @@ def process_str_of_nums(numbers, range_num=None):
 
 
 def sha1_copies(file_sizes):
+    """ Find files identical by size and sha1.
+
+    Get on input files combined in pairs by size: (size, list_of_files)
+
+    Args:
+        file_sizes(List[tuple]): pairs (size, files), where files it is
+            list of PurePath files with file_size = size.
+
+    Yields:
+        list: lists of files identical by sha1 and size
+    """
     file_hashes = defaultdict(list)
-    for _, files in file_sizes.items():
+    for _, files in file_sizes:
         file_hashes.clear()
 
+        # for each file with same size calc sha1 and add file to dict
         for file in files:
             sha1 = get_file_sha1(file)
             file_hashes[sha1].append(file)
 
+        # yield list of files with same sha1
         for sha1, copy_files in file_hashes.items():
             if len(copy_files) > 1:
                 yield copy_files
-
 
 
 @click.command()
@@ -93,11 +139,11 @@ def find_copies(path_to_dir, delete):
     files_data_iter = non_empty_files(dir_iter)
 
     file_sizes = defaultdict(list)
-    # find all files and save his path and hash to dict.
     for file_size, file_path in files_data_iter:
         file_sizes[file_size].append(file_path)
 
-    for copies in sha1_copies(file_sizes):
+    # view copies grouped by sha1
+    for copies in sha1_copies(file_sizes.items()):
         click.echo(TEXTS['identical_files'])
         for item_num, item in enumerate(copies, 1):
             click.echo(f'    {item_num}) {item}.')
@@ -112,9 +158,11 @@ def find_copies(path_to_dir, delete):
                 nums = process_str_of_nums(users_input, [0, len(copies)])
                 nums = list(nums)
             except Exception as exp:
+                # user input wrong format. View error and back to input numbers
                 click.echo(f'Error: {exp}')
                 continue
 
+            # if users choice not delete files
             if 0 in nums:
                 break
 
