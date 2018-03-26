@@ -6,7 +6,17 @@ from collections import OrderedDict
 import yaml
 
 
-class CsvProvider:
+class DefaultProvider:
+    def load(self):
+        cls_name = self.__class__.__name__
+        raise NotImplementedError(f'Method `load` not supported in {cls_name}.')
+
+    def save(self, head, lines):
+        cls_name = self.__class__.__name__
+        raise NotImplementedError(f'Method `save` not supported in {cls_name}.')
+
+
+class CsvProvider(DefaultProvider):
     def __init__(self, config):
         self.file_path = config.get('file_path')
         self.delimiter = config.get('delimiter', ';')
@@ -23,7 +33,7 @@ class CsvProvider:
             writer.writerows(lines)
 
 
-class JsonProvider:
+class JsonProvider(DefaultProvider):
     def __init__(self, config):
         self.file_path = config.get('file_path')
 
@@ -51,7 +61,7 @@ class JsonProvider:
             json.dump(dictionary, file)
 
 
-class Sqlite3Provider:
+class Sqlite3Provider(DefaultProvider):
     def __init__(self, config):
         self.file_path = config.get('file_path')
         self.table_name = config.get('table_name')
@@ -64,7 +74,7 @@ class Sqlite3Provider:
             return head, lines
 
 
-class HtmlProvider:
+class HtmlProvider(DefaultProvider):
     def __init__(self, config):
         self.file_path = config.get('file_path')
 
@@ -92,7 +102,7 @@ class HtmlProvider:
             file.write(text)
 
 
-class YamlProvider:
+class YamlProvider(DefaultProvider):
     def __init__(self, config):
         self.file_path = config.get('file_path')
 
