@@ -16,7 +16,7 @@ TEXTS = {
 }
 
 
-def get_file_hash(file_path):
+def get_file_sha1(file_path):
     """ This function returns the SHA-1 hash of the file """
     h = hashlib.sha1()
 
@@ -41,16 +41,19 @@ def file_data(item):
     return get_file_hash(item), item
 
 
+def non_empty_files(iter_files):
+    for file in iter_files:
+        size = file.stat().st_size
+        if size:
+            yield size, file
+
 def recursion_finder(path):
-    """ Recursion generator to find all not_empty files and get his sha1 """
+    """ Recursion generator to find all files """
     for item in path.iterdir():
         if item.is_dir():
             yield from recursion_finder(item)
             continue
-
-        h = file_data(item)
-        if h:
-            yield h
+        yield item
 
 
 def process_str_of_nums(numbers, range_num=None):
@@ -65,25 +68,38 @@ def process_str_of_nums(numbers, range_num=None):
         yield num
 
 
+def sha1_copies(file_sizes):
+    file_hashes = defaultdict(list)
+    for _, files in file_sizes.items():
+        file_hashes.clear()
+
+        for file in files:
+            sha1 = get_file_sha1(file)
+            file_hashes[sha1].append(file)
+
+        for sha1, copy_files in file_hashes.items():
+            if len(copy_files) > 1:
+                yield copy_files
+
+
+
 @click.command()
 @click.argument('path_to_dir', type=click.Path(exists=True))
 @click.option('-d', 'delete', is_flag=True, help=TEXTS['help_delete'])
 def find_copies(path_to_dir, delete):
     dir_path = Path(path_to_dir)
 
-    files_iter = recursion_finder(dir_path)
-    storage = defaultdict(list)
+    dir_iter = recursion_finder(dir_path)
+    files_data_iter = non_empty_files(dir_iter)
 
+    file_sizes = defaultdict(list)
     # find all files and save his path and hash to dict.
-    for file_hash, file_path in files_iter:
-        storage[file_hash].append(file_path)
+    for file_size, file_path in files_data_iter:
+        file_sizes[file_size].append(file_path)
 
-    # filter copies and unique files:
-    copies = filter(lambda x: len(x[1]) > 1, storage.items())
-
-    for sha1, files in copies:
+    for copies in sha1_copies(file_sizes):
         click.echo(TEXTS['identical_files'])
-        for item_num, item in enumerate(files, 1):
+        for item_num, item in enumerate(copies, 1):
             click.echo(f'    {item_num}) {item}.')
 
         if not delete:
@@ -93,7 +109,7 @@ def find_copies(path_to_dir, delete):
             # wait user input
             users_input = click.prompt(TEXTS['delete'], default='0')
             try:
-                nums = process_str_of_nums(users_input, [0, len(files)])
+                nums = process_str_of_nums(users_input, [0, len(copies)])
                 nums = list(nums)
             except Exception as exp:
                 click.echo(f'Error: {exp}')
@@ -102,7 +118,7 @@ def find_copies(path_to_dir, delete):
             if 0 in nums:
                 break
 
-            delete_files = [files[num - 1] for num in nums]
+            delete_files = [copies[num - 1] for num in nums]
 
             # show files to delete
             click.echo(TEXTS['delete_list'])
