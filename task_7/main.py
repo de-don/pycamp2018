@@ -1,4 +1,5 @@
 import hashlib
+from collections import defaultdict
 from pathlib import Path
 
 
@@ -42,5 +43,14 @@ if __name__ == '__main__':
     dir_path = Path('../')
 
     items = recursion_finder(dir_path)
+    storage = defaultdict(list)
+
     for file_hash, file_path in items:
-        print(file_hash, file_path)
+        storage[file_hash].append(file_path)
+
+    replies = list(filter(lambda x: len(x[1]) > 1, storage.items()))
+
+    for sha1, copies in replies:
+        print(f'Next files has sha1={sha1}:')
+        for item in copies:
+            print(f'    {item}')
