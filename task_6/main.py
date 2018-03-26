@@ -1,6 +1,5 @@
 import datetime
 import operator
-from collections import OrderedDict
 from contextlib import suppress
 from functools import partial
 from operator import itemgetter
@@ -64,7 +63,7 @@ class Entry:
         if len(row) != len(col_names):
             raise ValueError('Len(row) != Len(col_names)')
 
-        self._items = OrderedDict(zip(col_names, row))
+        self._items = dict(zip(col_names, row))
 
     @staticmethod
     def detect_type(item):
@@ -115,6 +114,10 @@ class Entry:
             raise NotSupported(f'{func} not supported for {key_type.__name__}')
 
         return filter_function(cell_value, value)
+
+    def values(self):
+        """ Get values of columns """
+        return self._items.values()
 
 
 class Table:
@@ -372,7 +375,7 @@ class Table:
     def copy(self):
         """ Return copy of this Table. """
         rows = (
-            map(itemgetter(1), row)
+            row.values()
             for row in self.rows
         )
         return Table(rows, col_names=self.col_names)
@@ -439,6 +442,7 @@ class Table:
 
 class TableDataProvider:
     """ Class for load and save data from different inputs """
+
     def __init__(self, provider_class, **kwargs):
         self.provider = provider_class(kwargs)
 
@@ -450,5 +454,5 @@ class TableDataProvider:
     def save(self, table):
         """ Save Table to provider """
         head = table.headers
-        lines = (map(str, map(itemgetter(1), row)) for row in table.rows)
+        lines = (row.values() for row in table.rows)
         return self.provider.save(head, lines)
