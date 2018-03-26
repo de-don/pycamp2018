@@ -7,7 +7,7 @@ import click
 TEXTS = {
     'identical_files': 'Next files are identical:',
     'delete': 'Enter number of files, separated by space, which you'
-              ' want to remove. Enter 0, for skip it.',
+              ' want to remove. Enter 0, to skip it.',
     'confirm': 'Really delete?',
     'delete_list': 'Next files will be deleted:',
     'delete_success': 'Delete success!',
@@ -60,7 +60,7 @@ def process_str_of_nums(numbers, range_num=None):
         if not range_num:
             yield num
             continue
-        if range_num[0] > num  or num > range_num[1]:
+        if range_num[0] > num or num > range_num[1]:
             raise IndexError(f'Index {num} out of range {range_num}')
         yield num
 
@@ -102,15 +102,17 @@ def find_copies(path_to_dir, delete):
             if 0 in nums:
                 break
 
+            delete_files = [files[num - 1] for num in nums]
+
             # show files to delete
             click.echo(TEXTS['delete_list'])
-            for num in nums:
-                item = files[num - 1]
-                click.echo(f'    {item}')
+            for file in delete_files:
+                click.echo(f'    {file}')
 
             if click.confirm(TEXTS['confirm']):
+                for file in delete_files:
+                    Path.unlink(file)
                 click.echo(TEXTS['delete_success'])
-                # Todo: delete
             else:
                 click.echo(TEXTS['delete_aborted'])
 
