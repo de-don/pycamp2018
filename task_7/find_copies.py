@@ -115,7 +115,7 @@ def sha1_copies(file_sizes):
         list: lists of files identical by sha1 and size
     """
     file_hashes = defaultdict(list)
-    for _, files in file_sizes:
+    for size, files in file_sizes:
         file_hashes.clear()
 
         # for each file with same size calc sha1 and add file to dict
