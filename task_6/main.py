@@ -59,7 +59,7 @@ class Entry:
             raise ValueError('Names of columns must be unique')
 
         # detection type of each element
-        row = list(map(self.detect_type, list(row)))
+        row = list(map(self.detect_type, row))
 
         if len(row) != len(col_names):
             raise ValueError('Len(row) != Len(col_names)')
@@ -402,7 +402,7 @@ class Table:
         Example:
             1) decorated and set custom name
             >>> @Table.add_filter(types=(datetime.datetime, ), name="month")
-            >>> def date_month(x, value):
+            ... def date_month(x, value):
             ...     return x.month == value
 
 
