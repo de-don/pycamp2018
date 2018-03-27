@@ -1,6 +1,14 @@
 from unittest import TestCase
 from pathlib import Path
-from .find_copies import *
+from .find_copies import (
+    find_copies,
+    get_file_sha1,
+    non_empty_files,
+    process_str_of_nums,
+    sha1_copies,
+    recursion_finder,
+    TEXTS
+)
 from click.testing import CliRunner
 
 
