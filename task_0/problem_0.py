@@ -36,6 +36,13 @@ RUS_TO_ENG = {
 ENG_TO_RUS = dict(map(reversed, RUS_TO_ENG.items()))
 
 
+def get_replace(diction, substring):
+    replace = diction.get(substring.lower(), None)
+    if replace and substring.istitle():
+        replace = replace.title()
+    return replace
+
+
 def transliteration(string, direction='rus2eng'):
     """ Function to transliterate string.
 
@@ -58,27 +65,23 @@ def transliteration(string, direction='rus2eng'):
     # max replace length in diction
     max_replace_len = max(map(len, diction.keys()))
 
-    position = 0
-    out_string = []
-    while position < len(string):
-        # check all substrings from longest to shortest
-        for substring_len in range(max_replace_len, 0, -1):
-            substring = string[position:position + substring_len]
-            replace = diction.get(substring.lower(), None)
+    def gen_output():
+        position = 0
+        while position < len(string):
+            # check all substrings from longest to shortest
+            for substring_len in range(max_replace_len, 0, -1):
+                substring = string[position:position + substring_len]
+                replace = get_replace(diction, substring)
 
-            # if replace is found, remember it and break loop
-            if replace:
-                # if current symbol is upper, capitalized all replace
-                if substring.istitle():
-                    replace = replace.title()
+                # if replace is found, remember it and break loop
+                if replace:
+                    position += substring_len
+                    break
+            else:
+                # if replace not found, set symbol without changes
+                replace = string[position]
+                position += 1
 
-                position += substring_len
-                break
-        else:
-            # if replace not found, set symbol without changes
-            replace = string[position]
-            position += 1
+            yield replace
 
-        out_string.append(replace)
-
-    return ''.join(out_string)
+    return ''.join(gen_output())
