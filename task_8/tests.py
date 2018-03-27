@@ -32,5 +32,43 @@ class MemoizationTest(TestCase):
         def wrong_pow(x, p=.2, a=5):
             return x ** p + a
 
-        wrong_result = wrong_pow(1)
-        # don't now how check it
+        f = io.StringIO()
+        with redirect_stdout(f):
+            wrong_pow(1)
+            wrong_pow(1)
+
+        output = "It\'s cached\n"
+        self.assertEqual(f.getvalue(), output)
+
+    def test_one_func_some_values(self):
+        @memoization
+        def wrong_pow(x, p=.2, a=5):
+            return x ** p + a
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            wrong_pow(5, p=.3)
+            wrong_pow(5, p=.4, a=10)
+            wrong_pow(5, a=10, p=.4)
+
+        output = "It\'s cached\n"
+        self.assertEqual(f.getvalue(), output)
+
+    def test_two_func(self):
+        @memoization
+        def wrong_pow(x, p=.2, a=5):
+            return x ** p + a
+
+        @memoization
+        def true_pow(x, p=.2, a=5):
+            return x ** p
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            wrong_pow(5, p=.3)
+            true_pow(5, p=.3)
+            true_pow(5, p=.3)
+
+        output = "It\'s cached\n"
+        self.assertEqual(f.getvalue(), output)
+
