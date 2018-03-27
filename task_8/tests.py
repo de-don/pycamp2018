@@ -1,6 +1,7 @@
 import io
 
 from .dummy_logger import dummy_logger, FORMAT_LOGGER
+from .memoization import memoization
 from unittest import TestCase
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -23,3 +24,13 @@ class DummyLoggerTest(TestCase):
             time=datetime.now().strftime('%H:%M'),  # may be not working
         ) + "\n"
         self.assertEqual(f.getvalue(), result)
+
+
+class MemoizationTest(TestCase):
+    def test_one_func(self):
+        @memoization
+        def wrong_pow(x, p=.2, a=5):
+            return x ** p + a
+
+        wrong_result = wrong_pow(1)
+        # don't now how check it
