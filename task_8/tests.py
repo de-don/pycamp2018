@@ -3,6 +3,8 @@ import io
 from .dummy_logger import dummy_logger, FORMAT_LOGGER
 from .memoization import memoization
 from .backoff import backoff
+from .composer import composer
+
 from unittest import TestCase
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -128,3 +130,57 @@ class BackoffTest(TestCase):
             @backoff(max_tries=2, retry_on=(str, int))
             def _(x):
                 return x
+
+
+class ComposerTest(TestCase):
+    def test_example(self):
+        def capitalize(string):
+            return string.title()
+
+        def newlines(string):
+            return string.replace(' ', '\n')
+
+        beautify = composer(capitalize, newlines)
+
+        result = beautify('hello world')
+        self.assertEqual(result, 'Hello\nWorld')
+
+    def test_two_args(self):
+        def swap(var1, var2):
+            return var2, var1
+
+        def muls(var1, var2):
+            return var1 * 10, var2 * 20
+
+        comlex = composer(swap, muls)
+
+        result = comlex(10, 20)
+        self.assertEqual(result, (200, 200))
+        result = comlex(20, 10)
+        self.assertEqual(result, (100, 400))
+
+    def test_different(self):
+        def split_slash(string):
+            str1, str2 = string.split("/", 1)
+            return str1, str2
+
+        def join_backslash(var1, var2):
+            return "\\".join((var1, var2,))
+
+        replace_slash = composer(split_slash, join_backslash)
+
+        result = replace_slash("home/page")
+        self.assertEqual(result, "home\\page")
+
+    def test_different_raise(self):
+        def split_slash(string):
+            str1, str2 = string.split("/")  ###
+            return str1, str2
+
+        def join_backslash(var1, var2):
+            return "\\".join((var1, var2,))
+
+        replace_slash = composer(split_slash, join_backslash)
+
+        with self.assertRaises(ValueError):
+            result = replace_slash("home/page/home")
