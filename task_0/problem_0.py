@@ -37,8 +37,8 @@ ENG_TO_RUS = dict(map(reversed, RUS_TO_ENG.items()))
 
 
 def get_replace(diction, substring):
-    replace = diction.get(substring.lower(), None)
-    if replace and substring.istitle():
+    replace = diction.get(substring.lower(), "")
+    if substring.istitle():
         replace = replace.title()
     return replace
 
@@ -54,12 +54,9 @@ def transliteration(string, direction='rus2eng'):
         str: translited string
 
     """
-
-    if direction == 'rus2eng':
-        diction = RUS_TO_ENG
-    elif direction == 'eng2rus':
-        diction = ENG_TO_RUS
-    else:
+    directions = {'rus2eng': RUS_TO_ENG, 'eng2rus': ENG_TO_RUS}
+    diction = directions.get(direction, None)
+    if not diction:
         raise ValueError(f'Direction "{direction}" is not supported')
 
     # max replace length in diction
