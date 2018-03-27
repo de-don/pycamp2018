@@ -1,10 +1,11 @@
 from unittest import TestCase
 from pathlib import Path
 from .find_copies import *
+from click.testing import CliRunner
 
 
 class FuncsTest(TestCase):
-    def test_sha1_copies(self):
+    def test_sha1_equal(self):
         file_1 = Path("task_7/test_files/copies/other/file_1.txt")
         file_2 = Path("task_7/test_files/copies/other/file_2.txt")
 
@@ -51,3 +52,53 @@ class FuncsTest(TestCase):
         nums = " ".join(map(str, range(5)))
         with self.assertRaises(IndexError):
             next(process_str_of_nums(nums, range_num=(1, 2)))
+
+    def test_sha1_copies(self):
+        file_1 = Path("task_7/test_files/copies/file_3.txt")
+        file_2 = Path("task_7/test_files/copies/file_4.txt")
+        file_3 = Path("task_7/test_files/copies/file_5.txt")
+
+        gen = sha1_copies([(None, [file_1, file_2, file_3]), ])
+        items = next(gen)
+
+        self.assertEqual(len(items), 2)
+        self.assertListEqual(items, [file_1, file_3])
+
+    def test_runner(self):
+        runner = CliRunner()
+        result = runner.invoke(find_copies, ['task_7/test_files'])
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(
+            result.output,
+            TEXTS['identical_files'] + '\n'
+            '    1) task_7/test_files/libs/super_lib.txt.\n'
+            '    2) task_7/test_files/libs/super_lib_copy.txt.\n' +
+            TEXTS['identical_files'] + '\n'
+            '    1) task_7/test_files/copies/file_4.txt.\n'
+            '    2) task_7/test_files/copies/other/file_1.txt.\n'
+            '    3) task_7/test_files/copies/other/file_2.txt.\n' +
+            TEXTS['identical_files'] + '\n'
+            '    1) task_7/test_files/copies/file_5.txt.\n'
+            '    2) task_7/test_files/copies/file_3.txt.\n'
+        )
+
+    def test_runner_deleter(self):
+        runner = CliRunner()
+        result = runner.invoke(
+            find_copies,
+            ['task_7/test_files/copies/other/', '-d'],
+            input='1\nN',
+        )
+        self.assertEqual(result.exit_code, 0)
+        self.assertEqual(
+            result.output,
+            TEXTS['identical_files'] + '\n'
+            '    1) task_7/test_files/copies/other/file_1.txt.\n'
+            '    2) task_7/test_files/copies/other/file_2.txt.\n' +
+            TEXTS['delete'] + ' [0]: 1\n' +
+            TEXTS['delete_list'] + '\n'
+            '    task_7/test_files/copies/other/file_1.txt\n' +
+            TEXTS['confirm'] + ' [y/N]: N\n' +
+            TEXTS['delete_aborted'] + '\n'
+            '====================\n'
+        )
