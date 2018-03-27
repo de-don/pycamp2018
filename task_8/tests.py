@@ -2,6 +2,7 @@ import io
 
 from .dummy_logger import dummy_logger, FORMAT_LOGGER
 from .memoization import memoization
+from .backoff import backoff
 from unittest import TestCase
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -72,3 +73,59 @@ class MemoizationTest(TestCase):
         output = "It\'s cached\n"
         self.assertEqual(f.getvalue(), output)
 
+
+class BackoffTest(TestCase):
+    def test_success(self):
+        @backoff(max_tries=3, retry_on=(ValueError,))
+        def to_int(iter_x):
+            x = next(iter_x)
+            return int(x)
+
+        array = iter(['false', 'hello', '100'])
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            number = to_int(array)
+        output = f.getvalue()
+
+        self.assertEqual(number, 100)
+        self.assertEqual(output, 'Failed 1 time(s).\nFailed 2 time(s).\n')
+
+    def test_none(self):
+        @backoff(max_tries=2, retry_on=(TypeError, ValueError))
+        def to_int(iter_x):
+            x = next(iter_x)
+            return int(x)
+
+        array = iter(['false', 'hello', '100'])
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            number = to_int(array)
+        output = f.getvalue()
+
+        self.assertEqual(number, None)
+        self.assertEqual(
+            output,
+            'Failed 1 time(s).\n'
+            'Failed 2 time(s).\n'
+            'Retries is end.\n'
+        )
+
+    def test_raise(self):
+        @backoff(max_tries=2, retry_on=(TypeError, StopIteration))
+        def to_int(iter_x):
+            x = next(iter_x)
+            return int(x)
+
+        array = iter(['false', 'hello', '100'])
+
+        with self.assertRaises(ValueError):
+            to_int(array)
+
+    def test_raise_exp(self):
+        with self.assertRaises(ValueError):
+            @backoff(max_tries=2, retry_on=(str, int))
+            def to_int(iter_x):
+                x = next(iter_x)
+                return int(x)
