@@ -1,13 +1,12 @@
 import io
-
-from .dummy_logger import dummy_logger, FORMAT_LOGGER
-from .memoization import memoization
-from .backoff import backoff
-from .composer import composer
-
-from unittest import TestCase
 from contextlib import redirect_stdout
 from datetime import datetime
+from unittest import TestCase
+
+from .backoff import backoff
+from .composer import composer
+from .dummy_logger import FORMAT_LOGGER, dummy_logger
+from .memoization import memoization
 
 
 class DummyLoggerTest(TestCase):

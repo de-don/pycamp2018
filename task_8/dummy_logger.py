@@ -1,5 +1,5 @@
-from functools import wraps
 from datetime import datetime
+from functools import wraps
 
 FORMAT_LOGGER = 'Called {name}(args={args}, kwargs={kwargs}) at {time}'
 
