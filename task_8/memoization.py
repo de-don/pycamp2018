@@ -2,6 +2,7 @@ from functools import wraps
 
 
 def memoization(func):
+    """ Decorator to cache function results for same arguments. """
     cache = {}
 
     @wraps(func)

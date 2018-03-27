@@ -5,6 +5,8 @@ FORMAT_LOGGER = 'Called {name}(args={args}, kwargs={kwargs}) at {time}'
 
 
 def dummy_logger(func):
+    """ Decorator which logged function calls """
+
     fmt = FORMAT_LOGGER
 
     @wraps(func)
