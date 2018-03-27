@@ -1,9 +1,11 @@
 from functools import wraps
 from datetime import datetime
 
+FORMAT_LOGGER = 'Called {name}(args={args}, kwargs={kwargs}) at {time}'
+
 
 def dummy_logger(func):
-    fmt = 'Called {name}(args={args}, kwargs={kwargs}) at {time}'
+    fmt = FORMAT_LOGGER
 
     @wraps(func)
     def _wrap(*args, **kwargs):
