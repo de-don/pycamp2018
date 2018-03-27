@@ -1,3 +1,6 @@
+from functools import wraps
+
+
 def backoff(max_tries, retry_on):
     # check what retry_on it is excepts
     for exp in retry_on:
@@ -5,6 +8,7 @@ def backoff(max_tries, retry_on):
             raise ValueError(f'{exp} is not Exception.')
 
     def _deco(func):
+        @wraps(func)
         def _wrap(*args, **kwargs):
             for i in range(max_tries):
                 try:
@@ -13,5 +17,7 @@ def backoff(max_tries, retry_on):
                 except retry_on:
                     print(f'Failed {i+1} time(s).')
             print(f'Retries is end.')
+
         return _wrap
+
     return _deco
