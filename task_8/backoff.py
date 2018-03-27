@@ -1,8 +1,8 @@
 def backoff(max_tries, retry_on):
     # check what retry_on it is excepts
     for exp in retry_on:
-        if isinstance(exp, Exception):
-            raise ValueError(f'{exp} is not Exception')
+        if not issubclass(exp, BaseException):
+            raise ValueError(f'{exp} is not Exception.')
 
     def _deco(func):
         def _wrap(*args, **kwargs):
@@ -11,7 +11,7 @@ def backoff(max_tries, retry_on):
                     result = func(*args, **kwargs)
                     return result
                 except retry_on:
-                    print(f'Failed {i} time(s)')
-            return _wrap
-
+                    print(f'Failed {i+1} time(s).')
+            print(f'Retries is end.')
+        return _wrap
     return _deco
