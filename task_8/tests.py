@@ -126,6 +126,5 @@ class BackoffTest(TestCase):
     def test_raise_exp(self):
         with self.assertRaises(ValueError):
             @backoff(max_tries=2, retry_on=(str, int))
-            def to_int(iter_x):
-                x = next(iter_x)
-                return int(x)
+            def _(x):
+                return x
