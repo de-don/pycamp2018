@@ -1,8 +1,8 @@
 import hashlib
-from collections import defaultdict
 from pathlib import Path
 
 import click
+from funcy import group_by, select_keys
 
 TEXTS = {
     'identical_files': 'Next files are identical:',
@@ -41,20 +41,17 @@ def get_file_sha1(file_path):
     return h.hexdigest()
 
 
-def non_empty_files(iter_files):
-    """ Return size of each not_empty file in iter_files.
+def get_file_size(file_path):
+    """ Return size of file.
 
     Args:
-        iter_files(iter): Iterator of PurePath objects
+        file_path(PurePath): path to file
 
-    Yields:
-        (int, PurePath): pair of size of file, anf his path.
+    Return:
+        int: size of file
 
     """
-    for file in iter_files:
-        size = file.stat().st_size
-        if size:
-            yield size, file
+    return file_path.stat().st_size
 
 
 def recursion_finder(path):
@@ -114,14 +111,8 @@ def sha1_copies(file_sizes):
     Yields:
         list: lists of files identical by sha1 and size
     """
-    file_hashes = defaultdict(list)
     for size, files in file_sizes:
-        file_hashes.clear()
-
-        # for each file with same size calc sha1 and add file to dict
-        for file in files:
-            sha1 = get_file_sha1(file)
-            file_hashes[sha1].append(file)
+        file_hashes = group_by(get_file_sha1, files)
 
         # yield list of files with same sha1
         for sha1, copy_files in file_hashes.items():
@@ -136,11 +127,9 @@ def find_copies(path_to_dir, delete):
     dir_path = Path(path_to_dir)
 
     dir_iter = recursion_finder(dir_path)
-    files_data_iter = non_empty_files(dir_iter)
 
-    file_sizes = defaultdict(list)
-    for file_size, file_path in files_data_iter:
-        file_sizes[file_size].append(file_path)
+    file_sizes = group_by(get_file_size, dir_iter)
+    file_sizes = select_keys(None, file_sizes)
 
     # view copies grouped by sha1
     for copies in sha1_copies(file_sizes.items()):

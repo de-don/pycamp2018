@@ -3,7 +3,6 @@ from pathlib import Path
 from .find_copies import (
     find_copies,
     get_file_sha1,
-    non_empty_files,
     process_str_of_nums,
     sha1_copies,
     recursion_finder,
@@ -24,22 +23,6 @@ class FuncsTest(TestCase):
         file_2 = Path("task_7/test_files/copies/file_4.txt")
 
         self.assertNotEqual(get_file_sha1(file_1), get_file_sha1(file_2))
-
-    def test_empty_files_1(self):
-        items = Path("task_7/test_files").iterdir()
-        files = [item for item in items if not item.is_dir()]
-        self.assertEqual(len(files), 2)
-
-        count = len(list(non_empty_files(files)))
-        self.assertEqual(count, 0)
-
-    def test_empty_files_2(self):
-        items = Path("task_7/test_files/libs").iterdir()
-        files = [item for item in items if not item.is_dir()]
-        self.assertEqual(len(files), 3)
-
-        count = len(list(non_empty_files(files)))
-        self.assertEqual(count, 3)
 
     def test_recursion_finder(self):
         path = Path("task_7/test_files/copies")
