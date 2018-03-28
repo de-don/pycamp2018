@@ -99,25 +99,54 @@ def process_str_of_nums(numbers, range_num=None):
         yield num
 
 
-def sha1_copies(file_sizes):
-    """ Find files identical by size and sha1.
-
-    Get on input files combined in pairs by size: (size, list_of_files)
+def sha1_copies(files):
+    """ Find files identical sha1.
 
     Args:
-        file_sizes(List[tuple]): pairs (size, files), where files it is
-            list of PurePath files with file_size = size.
+        files(Iterable[PurePath]): Iterable of files.
 
     Yields:
-        list: lists of files identical by sha1 and size
+        list: lists of files identical by sha1
     """
-    for size, files in file_sizes:
-        file_hashes = group_by(get_file_sha1, files)
+    file_hashes = group_by(get_file_sha1, files)
 
-        # yield list of files with same sha1
-        for sha1, copy_files in file_hashes.items():
-            if len(copy_files) > 1:
-                yield copy_files
+    for sha1, copy_files in file_hashes.items():
+        if len(copy_files) > 1:
+            yield copy_files
+
+
+def sha1_copies_from_groups(groups_files):
+    """ Generator for get groups of copies in each group in groups_files. """
+    for files in groups_files:
+        yield from sha1_copies(files)
+
+
+def delete_files(files):
+    for file in files:
+        Path.unlink(file)
+
+
+##############################################################
+# User interface
+##############################################################
+
+def show_list_files(files, text):
+    click.echo(text)
+    for item_num, item in enumerate(files, 1):
+        click.echo(f'    {item_num}) {item}')
+
+
+def get_nums_for_delete(files):
+    while True:
+        users_input = click.prompt(TEXTS['delete'], default='0')
+        try:
+            nums = process_str_of_nums(users_input, [0, len(files)])
+            nums = list(nums)
+        except Exception as exp:
+            # user input wrong format. View error and back to input numbers
+            click.echo(f'Error: {exp}')
+            continue
+        return nums
 
 
 @click.command()
@@ -127,49 +156,35 @@ def find_copies(path_to_dir, delete):
     dir_path = Path(path_to_dir)
 
     dir_iter = recursion_finder(dir_path)
-
     file_sizes = group_by(get_file_size, dir_iter)
     file_sizes = select_keys(None, file_sizes)
 
     # view copies grouped by sha1
-    for copies in sha1_copies(file_sizes.items()):
-        click.echo(TEXTS['identical_files'])
-        for item_num, item in enumerate(copies, 1):
-            click.echo(f'    {item_num}) {item}.')
+    for copies in sha1_copies_from_groups(file_sizes.values()):
+
+        show_list_files(copies, TEXTS['identical_files'])
 
         if not delete:
             continue
 
-        while True:
-            # wait user input
-            users_input = click.prompt(TEXTS['delete'], default='0')
-            try:
-                nums = process_str_of_nums(users_input, [0, len(copies)])
-                nums = list(nums)
-            except Exception as exp:
-                # user input wrong format. View error and back to input numbers
-                click.echo(f'Error: {exp}')
-                continue
+        # wait user input
+        nums = get_nums_for_delete(copies)
 
-            # if users choice not delete files
-            if 0 in nums:
-                break
+        # if users choice not delete files
+        if 0 in nums:
+            continue
 
-            delete_files = [copies[num - 1] for num in nums]
+        files_to_delete = [copies[num - 1] for num in nums]
 
-            # show files to delete
-            click.echo(TEXTS['delete_list'])
-            for file in delete_files:
-                click.echo(f'    {file}')
+        # show files to delete
+        show_list_files(files_to_delete, TEXTS['delete_list'])
 
-            if click.confirm(TEXTS['confirm']):
-                for file in delete_files:
-                    Path.unlink(file)
-                click.echo(TEXTS['delete_success'])
-            else:
-                click.echo(TEXTS['delete_aborted'])
+        if click.confirm(TEXTS['confirm']):
+            delete_files(files_to_delete)
+            click.echo(TEXTS['delete_success'])
+        else:
+            click.echo(TEXTS['delete_aborted'])
 
-            break
         click.echo('=' * 20)
 
 
