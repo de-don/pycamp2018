@@ -122,8 +122,14 @@ def sha1_copies_from_groups(groups_files):
 
 
 def delete_files(files):
+    """ Function to remove files """
     for file in files:
         Path.unlink(file)
+
+
+def not_alone_item(items):
+    """ Function to check that items it is not single item  """
+    return len(items) > 1
 
 
 ##############################################################
@@ -131,6 +137,8 @@ def delete_files(files):
 ##############################################################
 
 def show_list_files(files, text):
+    """ Show list of files with description `text`. """
+
     click.echo(text)
     for item_num, item in enumerate(files, 1):
         click.echo(f'    {item_num}) {item}')
@@ -156,11 +164,14 @@ def find_copies(path_to_dir, delete):
     dir_path = Path(path_to_dir)
 
     dir_iter = recursion_finder(dir_path)
+    # group all files by size and filter 0-sized files
     file_sizes = group_by(get_file_size, dir_iter)
     file_sizes = select_keys(None, file_sizes)
+    # get groups of files and filter one-members groups
+    files_groups = filter(not_alone_item, file_sizes.values())
 
     # view copies grouped by sha1
-    for copies in sha1_copies_from_groups(file_sizes.values()):
+    for copies in sha1_copies_from_groups(files_groups):
 
         show_list_files(copies, TEXTS['identical_files'])
 
