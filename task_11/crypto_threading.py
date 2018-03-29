@@ -4,7 +4,7 @@ from time import perf_counter as pc
 from Crypto.Util.number import getPrime
 
 bits = 2 ** 12
-count = 20
+count = 40
 
 
 class MyThread(Thread):
@@ -31,3 +31,6 @@ if __name__ == "__main__":
         thread.join()
 
     print("Time:", pc() - t)
+
+### 737.5153986849982 20 штук
+### 1598.072908844002 40 штук

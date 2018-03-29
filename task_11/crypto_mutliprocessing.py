@@ -4,7 +4,8 @@ from time import perf_counter as pc
 from Crypto.Util.number import getPrime
 
 bits = 2 ** 12
-count = 20
+count = 40
+
 
 def print_prime(name):
     prime = getPrime(bits)
@@ -25,3 +26,6 @@ if __name__ == "__main__":
         proc.join()
 
     print("Time:", pc() - t)
+
+### 145.55195419400115 20 штук
+### 366.13211976399907 40 штук
