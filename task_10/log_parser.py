@@ -24,11 +24,7 @@ def get_url_info(url):
         dict: url parameters, for example {'post-id': 123}
     """
     matches = re.finditer(r'([^/]+)/(\d+)/', url)
-    params = {}
-    for match in matches:
-        name, value = match.groups()
-        params[name] = value
-
+    params = {match.groups() for match in matches}
     pattern = re.sub(r'([^/]+)/(\d+)/', r'\1/<\1-id>/', url)
     return pattern, params
 
@@ -37,9 +33,8 @@ def get_url_patterns(url_patterns):
     """ Function to get more-dimensional dict where each way it is pattern. """
     dictionary = {}
     for url in url_patterns:
-        url = url.split("/")[1:-1]
         curr_dict = dictionary
-        for i, part in enumerate(url):
+        for part in url.split("/")[1:-1]:
             if part not in curr_dict:
                 curr_dict[part] = {}
             curr_dict = curr_dict[part]
