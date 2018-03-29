@@ -3,34 +3,42 @@ from time import perf_counter as pc
 
 from Crypto.Util.number import getPrime
 
-bits = 2 ** 12
+bits = 2 ** 10
 count = 40
 
 
 class MyThread(Thread):
-    def __init__(self, name):
-        """Инициализация потока"""
+    result = None
+
+    def __init__(self, autostart=False):
+        """Инициализация"""
         Thread.__init__(self)
-        self.name = name
+        if autostart:
+            self.start()
 
     def run(self):
-        """Запуск потока"""
+        """Запуск"""
         prime = getPrime(bits)
-        print(self.name, prime)
+        self.result = prime
+
+
+def wait_and_get_results(items):
+    for item in items:
+        item.join()
+        yield item.result
 
 
 if __name__ == "__main__":
-    t = pc()
-    threads = []
-    for i in range(count):
-        thread = MyThread("Thread #%s" % (i + 1))
-        thread.start()
-        threads.append(thread)
+    for part in range(1, 21):
+        t = pc()
+        results = []
+        k = 0
+        while k < count:
+            part_size = min(count-k, part)
+            threads = [MyThread(autostart=True) for i in range(part_size)]
+            results_iter = wait_and_get_results(threads)
+            results.extend(list(results_iter))
+            k += part_size
 
-    for thread in threads:
-        thread.join()
-
-    print("Time:", pc() - t)
-
-### 737.5153986849982 20 штук
-### 1598.072908844002 40 штук
+        results.sort()
+        print(f"Part size = {part}.", f"Count results: {len(results)}", "Time:", pc() - t, results)
