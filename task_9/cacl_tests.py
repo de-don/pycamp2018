@@ -136,6 +136,15 @@ class CalcTrueTester(TestCase):
         r = 0.36
         self.assertEqual(calculate(q), r)
 
+    ##############################################################
+    # example
+    ##############################################################
+
+    def test_example(self):
+        q = "((2*5^2/50+10)-5*2)*100.5-5.5"
+        r = 95.0
+        self.assertEqual(calculate(q), r)
+
 
 class CalcErrorTester(TestCase):
     def test_1(self):
