@@ -4,146 +4,81 @@ from .calc import calculate
 
 
 class CalcTrueTester(TestCase):
-    def test_1(self):
-        q = "100 + 200"
-        r = 300.0
-        self.assertEqual(calculate(q), r)
-
-    def test_2(self):
-        q = "100+200 - 150"
-        r = 150.0
-        self.assertEqual(calculate(q), r)
-
-    def test_3(self):
-        q = "20*11-200/10"
-        r = 200.0
-        self.assertEqual(calculate(q), r)
-
-    def test_4(self):
-        q = "10 * (1+2)"
-        r = 30.0
-        self.assertEqual(calculate(q), r)
-
-    def test_5(self):
-        q = "2+2*2"
-        r = 6.0
-        self.assertEqual(calculate(q), r)
-
-    def test_6(self):
-        q = "2*2+2"
-        r = 6.0
-        self.assertEqual(calculate(q), r)
-
-    def test_7(self):
-        q = "0*2+1"
-        r = 1.0
-        self.assertEqual(calculate(q), r)
-
-    def test_8(self):
-        q = "((50/50+10)-5*2)*100.5-5.5"
-        r = 95.0
-        self.assertEqual(calculate(q), r)
-
-    def test_8(self):
-        q = "(2+2)*(2+2)"
-        r = 16.0
-        self.assertEqual(calculate(q), r)
-
-    def test_9(self):
-        q = "((1+1)+2)*(2+2)"
-        r = 16.0
-        self.assertEqual(calculate(q), r)
+    def test_simple(self):
+        data = (
+            ("100 + 200", 300.0),
+            ("100+200 - 150", 150.0),
+            ("20*11-200/10", 200.0),
+            ("10 * (1+2)", 30.0),
+            ("2+2*2", 6.0),
+            ("2*2+2", 6.0),
+            ("0*2+1", 1.0),
+            ("(2+2)*(2+2)", 16.0),
+            ("((1+1)+2)*(2+2)", 16.0),
+        )
+        for i, (expr, result) in enumerate(data):
+            with self.subTest(i=i):
+                self.assertEqual(calculate(expr), result)
 
     ##############################################################
     # pow tests
     ##############################################################
 
-    def test_pow_1(self):
-        q = "10^2"
-        r = 100.0
-        self.assertEqual(calculate(q), r)
-
-    def test_pow_2(self):
-        q = "9^0.5"
-        r = 3.0
-        self.assertEqual(calculate(q), r)
-
-    def test_pow_3(self):
-        q = "10*2^2"
-        r = 40.0
-        self.assertEqual(calculate(q), r)
-
-    def test_pow_4(self):
-        q = "2^2*3"
-        r = 12.0
-        self.assertEqual(calculate(q), r)
-
-    def test_pow_5(self):
-        q = "(2+2)^2.5"
-        r = 32.0
-        self.assertEqual(calculate(q), r)
-
-    def test_pow_6(self):
-        q = "(2+2)^2/2"
-        r = 8.0
-        self.assertEqual(calculate(q), r)
-
-    def test_pow_7(self):
-        q = "(2+2)^(2/2)"
-        r = 4.0
-        self.assertEqual(calculate(q), r)
+    def test_pow(self):
+        data = (
+            ("10^2", 100.0),
+            ("9^0.5", 3.0),
+            ("10*2^2", 40.0),
+            ("2^2*3", 12.0),
+            ("(2+2)^2.5", 32.0),
+            ("(2+2)^2/2", 8.0),
+            ("(2+2)^(2/2)", 4),
+        )
+        for i, (expr, result) in enumerate(data):
+            with self.subTest(i=i):
+                self.assertEqual(calculate(expr), result)
 
     ##############################################################
     # negative
     ##############################################################
 
-    def test_negative_1(self):
-        q = "12-(-34)"
-        r = 46.0
-        self.assertEqual(calculate(q), r)
-
-    def test_negative_2(self):
-        q = "(-34)"
-        r = -34.0
-        self.assertEqual(calculate(q), r)
-
-    def test_negative_3(self):
-        q = "-0.5"
-        r = -0.5
-        self.assertEqual(calculate(q), r)
-
-    def test_negative_4(self):
-        q = "-0.5+5"
-        r = 4.5
-        self.assertEqual(calculate(q), r)
-
-    def test_negative_5(self):
-        q = "-0.5*-0.5"
-        r = 0.25
-        self.assertEqual(calculate(q), r)
+    def test_negative(self):
+        data = (
+            ("12-(-34)", 46.0),
+            ("(-34)", -34.0),
+            ("-0.5", -0.5),
+            ("-0.5+5", 4.5),
+            ("-0.5*-0.5", 0.25),
+        )
+        for i, (expr, result) in enumerate(data):
+            with self.subTest(i=i):
+                self.assertEqual(calculate(expr), result)
 
     ##############################################################
     # float without main number
     ##############################################################
 
-    def test_float_1(self):
-        q = ".5+.5"
-        r = 1.0
-        self.assertEqual(calculate(q), r)
-
-    def test_float_2(self):
-        q = ".6*.6"
-        r = 0.36
-        self.assertEqual(calculate(q), r)
+    def test_float(self):
+        data = (
+            (".5+.5", 1.0),
+            (".6*.6", 0.36),
+        )
+        for i, (expr, result) in enumerate(data):
+            with self.subTest(i=i):
+                self.assertEqual(calculate(expr), result)
 
     ##############################################################
-    # example
+    # difficult tests
     ##############################################################
 
-    def test_example(self):
-        q = "((2*5^2/50+10)-5*2)*100.5-5.5"
-        r = 95.0
-        self.assertEqual(calculate(q), r)
+    def test_difficult(self):
+        data = (
+            ("((2*5^2/50+10)-5*2)*100.5-5.5", 95.0),
+            ("((50/50+10)-5*2)*100.5-5.5", 95.0),
+        )
+        for i, (expr, result) in enumerate(data):
+            with self.subTest(i=i):
+                self.assertEqual(calculate(expr), result)
 
 
 class CalcErrorTester(TestCase):
