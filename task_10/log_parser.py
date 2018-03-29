@@ -13,7 +13,16 @@ pattern = r'(?P<date>\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2},\d{1,4}) ' \
           r'Query:\n(?P<query>{.*?})\nHeaders:\n(?P<headers>{.*?})'
 
 
-def get_url_pattern(url):
+def get_url_info(url):
+    """ Function to get info by url: url pattern and current url params.
+
+    Args:
+        url(str): url-adress, for example "/api/v1/post/123/delete"
+
+    Returns:
+        str: url-pattern, for example "/api/v1/post/<post-id>/delete"
+        dict: url parameters, for example {'post-id': 123}
+    """
     matches = re.finditer(r'([^/]+)/(\d+)/', url)
     params = {}
     for match in matches:
@@ -25,6 +34,7 @@ def get_url_pattern(url):
 
 
 def get_url_patterns(url_patterns):
+    """ Function to get more-dimensional dict where each way it is pattern. """
     dictionary = {}
     for url in url_patterns:
         url = url.split("/")[1:-1]
@@ -37,10 +47,11 @@ def get_url_patterns(url_patterns):
 
 
 def match_to_dict(matchobj):
+    """ Transform match object of one log-node to log-dictionary """
     log = matchobj.groupdict()
     log['headers'] = json.loads(log['headers'])
     log['query'] = json.loads(log['query'])
-    log['url_pattern'], log['url_params'] = get_url_pattern(log['url'])
+    log['url_pattern'], log['url_params'] = get_url_info(log['url'])
     return log
 
 
