@@ -1,32 +1,29 @@
-from multiprocessing import Process
-from multiprocessing.sharedctypes import Value, Array
+from multiprocessing import Process, Queue
 from time import perf_counter as pc
-from ctypes import c_char_p
 
 from Crypto.Util.number import getPrime
 
-bits = 2 ** 8
+bits = 2 ** 11
 count = 40
 
 
 class MyProcess(Process):
     result = None
 
-    def __init__(self, value, autostart=False):
+    def __init__(self, queue, autostart=False):
         """Инициализация"""
         Process.__init__(self)
-        self.value = value
+        self.queue = queue
         if autostart:
             self.start()
 
     def run(self):
         """Запуск"""
         prime = getPrime(bits)
-        self.value.value = prime
-        #print(c_char_p(prime), prime)
+        self.queue.put(prime)
 
 
-def wait_and_get_results(items):
+def wait_results(items):
     for item in items:
         item.join()
 
@@ -34,13 +31,12 @@ def wait_and_get_results(items):
 if __name__ == "__main__":
     for part in range(1, 21):
         t = pc()
-        results = [Value(c_char_p) for i in range(count)]
+        queue = Queue()
         k = 0
         while k < count:
             part_size = min(count - k, part)
-            process = [MyProcess(value=results[k+i], autostart=True) for i in range(part_size)]
-            wait_and_get_results(process)
+            process = [MyProcess(queue=queue, autostart=True) for i in range(part_size)]
+            wait_results(process)
             k += part_size
-        print(results[4].value)
-        res = results[:]
-        print(f"Part size = {part}.", f"Count results: {len(res)}", "Time:", pc() - t, res)
+        results = [queue.get() for _ in range(count)]
+        print(f"Processes count = {part}.", f"Count results: {len(results)}", "Time:", pc() - t)
