@@ -1,5 +1,5 @@
 import re
-from operator import mul, truediv, add, sub
+from operator import mul, truediv, add, sub, pow
 
 number = r'-?\d+(?:\.\d+)?'
 
@@ -7,7 +7,8 @@ operations = {
     '*': mul,
     '/': truediv,
     '+': add,
-    '-': sub
+    '-': sub,
+    '^': pow,
 }
 
 
@@ -30,8 +31,7 @@ def calc(expr):
             break
         expr = new_expr
 
-    for oper in (r'\*|\/', r'\+|-'):
-        # mul and truediv
+    for oper in (r'\^', r'\*|\/', r'\+|-'):
         while True:
             new_expr = re.sub(
                 r'({num})({op})({num})'.format(num=number, op=oper),
@@ -49,7 +49,7 @@ def calculate(expr):
     # delete spaces
     expr = re.sub(r'\s', '', expr)
     # check other symbols:
-    other = re.findall(r'[^\*\/\-\+0-9\(\)\.]', expr)
+    other = re.findall(r'[^\*\/\-\+0-9\(\)\.\^]', expr)
     if other:
         raise ValueError(f"Find not arithmetic symbols: {other}")
 
