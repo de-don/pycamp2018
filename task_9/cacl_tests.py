@@ -93,6 +93,35 @@ class CalcTrueTester(TestCase):
         r = 4.0
         self.assertEqual(calculate(q), r)
 
+    ##############################################################
+    # negative
+    ##############################################################
+
+    def test_negative_1(self):
+        q = "12-(-34)"
+        r = 46.0
+        self.assertEqual(calculate(q), r)
+
+    def test_negative_2(self):
+        q = "(-34)"
+        r = -34.0
+        self.assertEqual(calculate(q), r)
+
+    def test_negative_3(self):
+        q = "-0.5"
+        r = -0.5
+        self.assertEqual(calculate(q), r)
+
+    def test_negative_4(self):
+        q = "-0.5+5"
+        r = 4.5
+        self.assertEqual(calculate(q), r)
+
+    def test_negative_5(self):
+        q = "-0.5*-0.5"
+        r = 0.25
+        self.assertEqual(calculate(q), r)
+
 
 class CalcErrorTester(TestCase):
     def test_1(self):
