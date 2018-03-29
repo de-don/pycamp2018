@@ -44,10 +44,15 @@ class CalcTrueTester(TestCase):
         r = 95.0
         self.assertEqual(calculate(q), r)
 
-    # def test_8(self):
-    #     q = "(2+2)*(2+2)"
-    #     r = 95.0
-    #     self.assertEqual(calculate(q), r)
+    def test_8(self):
+        q = "(2+2)*(2+2)"
+        r = 16.0
+        self.assertEqual(calculate(q), r)
+
+    def test_9(self):
+        q = "((1+1)+2)*(2+2)"
+        r = 16.0
+        self.assertEqual(calculate(q), r)
 
     ##############################################################
     # pow tests
@@ -83,10 +88,10 @@ class CalcTrueTester(TestCase):
         r = 8.0
         self.assertEqual(calculate(q), r)
 
-    # def test_pow_7(self):
-    #     q = "(2+2)^(2/2)"
-    #     r = 4.0
-    #     self.assertEqual(calculate(q), r)
+    def test_pow_7(self):
+        q = "(2+2)^(2/2)"
+        r = 4.0
+        self.assertEqual(calculate(q), r)
 
 
 class CalcErrorTester(TestCase):

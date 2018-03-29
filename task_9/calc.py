@@ -26,18 +26,18 @@ def arithm_oper(q):
 def calc(expr):
     # brackets
     while True:
-        new_expr = re.sub(r'(.*?)\((.*)\)(.*?)', brackets, expr)
+        new_expr = re.sub(r'(.*?)\(([^\(\)]*)\)(.*?)', brackets, expr)
         if new_expr == expr:
             break
         expr = new_expr
 
-    for oper in (r'\^', r'\*|\/', r'\+|-'):
+    for oper_pattern in (r'\^', r'\*|\/', r'\+|-'):
         while True:
-            new_expr = re.sub(
-                r'({num})({op})({num})'.format(num=number, op=oper),
-                arithm_oper,
-                expr
+            pattern = r'({num})({op})({num})'.format(
+                num=number,
+                op=oper_pattern
             )
+            new_expr = re.sub(pattern, arithm_oper, expr)
             if new_expr == expr:
                 break
             expr = new_expr
