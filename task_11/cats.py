@@ -4,7 +4,7 @@ from random import randint
 
 import requests
 
-path = './tmp/{}_{}.jpg'
+path = './tmp/'
 
 
 def get_urls(count):
@@ -20,7 +20,7 @@ def save_cat_and_print_hash(name, url):
         print('error')
         return
 
-    path_img = path.format(randint(0, 10 ** 5), randint(0, 10 ** 5))
+    path_img = path + url.split("/")[-1]
     with open(path_img, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:  # filter out keep-alive new chunks
