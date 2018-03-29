@@ -1,7 +1,7 @@
 import re
 from operator import mul, truediv, add, sub, pow
 
-number = r'-?\d+(?:\.\d+)?'
+number = r'-?(?:\d+(?:\.\d+)?|\d*(?:\.\d+)+)'
 
 operations = {
     '*': mul,

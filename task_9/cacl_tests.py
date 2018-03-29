@@ -122,6 +122,20 @@ class CalcTrueTester(TestCase):
         r = 0.25
         self.assertEqual(calculate(q), r)
 
+    ##############################################################
+    # float without main number
+    ##############################################################
+
+    def test_float_1(self):
+        q = ".5+.5"
+        r = 1.0
+        self.assertEqual(calculate(q), r)
+
+    def test_float_2(self):
+        q = ".6*.6"
+        r = 0.36
+        self.assertEqual(calculate(q), r)
+
 
 class CalcErrorTester(TestCase):
     def test_1(self):
