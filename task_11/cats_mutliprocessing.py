@@ -1,24 +1,41 @@
-from multiprocessing import Process
+from multiprocessing import Queue
 from time import perf_counter as pc
 
 from task_11.cats import save_cat_and_print_hash, get_urls
+from task_11.process import MyProcess, wait_results, get_results
 
-count = 100
+count = 40
+max_count_process = 20
+
+
+class CatProcess(MyProcess):
+    def run(self):
+        """Запуск"""
+        hash = save_cat_and_print_hash(self.kwargs['url'])
+        # сохраняем результат в очередь
+        self.queue.put(hash)
+
 
 if __name__ == '__main__':
-    t = pc()
-    procs = []
-    for i, url in enumerate(get_urls(count)):
-        proc = Process(
-            target=save_cat_and_print_hash,
-            args=("Process #%s" % (i + 1), url)
+    urls = get_urls(count)
+    for part in range(1, max_count_process+1):
+        t = pc()
+        queue = Queue()
+        k = 0
+        while k < count:
+            # calc count threads
+            part_size = min(count - k, part)
+            urls_part = urls[k:k + part_size]
+            k += part_size
+
+            # create threads
+            processes = [CatProcess(autostart=True, queue=queue, url=url) for url in urls_part]
+            wait_results(processes)
+
+        results = get_results(queue, count)
+        count_unique = len(set(results))
+        print(
+            f"Processes count = {part}.",
+            f"Count results: {len(results)}(uniq: {count_unique})",
+            f"Time: {pc() - t}"
         )
-        proc.start()
-        procs.append(proc)
-
-    for proc in procs:
-        proc.join()
-
-    print("Time:", pc() - t)
-
-### 6.240751851000823 100 штук
