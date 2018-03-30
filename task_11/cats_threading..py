@@ -3,16 +3,16 @@ from time import perf_counter as pc
 from task_11.cats import save_cat_and_print_hash, get_urls
 from task_11.thread import MyThread, get_threads_results
 
-count = 40
-max_count_threads = 20
-
 
 class CatThread(MyThread):
     def run(self):
         self.result = save_cat_and_print_hash(self.kwargs['url'])
 
 
-if __name__ == "__main__":
+def main():
+    count = 40
+    max_count_threads = 20
+
     urls = get_urls(count)
     for part in range(1, max_count_threads):
         t = pc()
@@ -35,3 +35,7 @@ if __name__ == "__main__":
             f"Count results: {len(results)}(uniq: {len(count_unique)})",
             f"Time: {pc() - t}"
         )
+
+
+if __name__ == "__main__":
+    main()

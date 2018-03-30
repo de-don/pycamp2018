@@ -4,9 +4,6 @@ from time import perf_counter as pc
 from task_11.cats import save_cat_and_print_hash, get_urls
 from task_11.process import MyProcess, wait_results, get_results
 
-count = 40
-max_count_process = 20
-
 
 class CatProcess(MyProcess):
     def run(self):
@@ -16,7 +13,10 @@ class CatProcess(MyProcess):
         self.queue.put(hash)
 
 
-if __name__ == '__main__':
+def main():
+    count = 40
+    max_count_process = 20
+
     urls = get_urls(count)
     for part in range(1, max_count_process + 1):
         t = pc()
@@ -39,3 +39,7 @@ if __name__ == '__main__':
             f"Count results: {len(results)}(uniq: {count_unique})",
             f"Time: {pc() - t}"
         )
+
+
+if __name__ == '__main__':
+    main()
