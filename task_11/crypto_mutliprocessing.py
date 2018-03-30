@@ -19,7 +19,7 @@ class PrimeProcess(MyProcess):
 
 
 if __name__ == "__main__":
-    for part in range(1, max_count_process):
+    for part in range(1, max_count_process + 1):
         t = pc()
         queue = Queue()
         k = 0

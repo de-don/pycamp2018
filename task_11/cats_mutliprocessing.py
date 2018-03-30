@@ -18,7 +18,7 @@ class CatProcess(MyProcess):
 
 if __name__ == '__main__':
     urls = get_urls(count)
-    for part in range(1, max_count_process+1):
+    for part in range(1, max_count_process + 1):
         t = pc()
         queue = Queue()
         k = 0

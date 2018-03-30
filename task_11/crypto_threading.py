@@ -1,3 +1,4 @@
+import random
 from time import perf_counter as pc
 
 from Crypto.Util.number import getPrime
@@ -12,12 +13,13 @@ max_count_threads = 20
 class PrimeThread(MyThread):
     def run(self):
         """Запуск"""
+        random.seed(123)
         prime = getPrime(bits)
         self.result = prime
 
 
 if __name__ == "__main__":
-    for part in range(1, max_count_threads):
+    for part in range(1, max_count_threads + 1):
         t = pc()
         results = []
         k = 0
