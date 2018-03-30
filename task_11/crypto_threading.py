@@ -8,6 +8,7 @@ bits = 2 ** 11
 count = 40
 max_count_threads = 20
 
+
 class PrimeThread(MyThread):
     def run(self):
         """Запуск"""
