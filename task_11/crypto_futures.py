@@ -17,7 +17,10 @@ def get_prime(count_primes):
     return getPrime(bits)
 
 
-executors = {"Crypto threads": ThreadPoolExecutor, "Crypto process": ProcessPoolExecutor}
+executors = {
+    "Crypto threads": ThreadPoolExecutor,
+    "Crypto process": ProcessPoolExecutor
+}
 
 if __name__ == "__main__":
 

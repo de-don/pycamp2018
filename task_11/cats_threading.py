@@ -1,7 +1,8 @@
+import logging
 from time import perf_counter as pc
 
-from task_11.cats import save_cat_and_print_hash, get_urls
-from task_11.thread import MyThread, get_threads_results
+from cats import save_cat_and_print_hash, get_urls
+from thread import MyThread, get_threads_results
 
 
 class CatThread(MyThread):
@@ -10,8 +11,11 @@ class CatThread(MyThread):
 
 
 def main():
-    count = 40
-    max_count_threads = 20
+    logger = logging.getLogger(__name__)
+    lvl = logger.level
+
+    count = 5
+    max_count_threads = 5
 
     urls = get_urls(count)
     for part in range(1, max_count_threads):
@@ -30,11 +34,11 @@ def main():
             results.extend(list(results_iter))
 
         count_unique = len(set(results))
-        print(
-            f"Threads count = {part}.",
-            f"Count results: {len(results)}(uniq: {len(count_unique)})",
-            f"Time: {pc() - t}"
-        )
+        logger.log(lvl,
+                   f"Threads count = {part}. "
+                   f"Count results: {len(results)}(uniq: {count_unique}) "
+                   f"Time: {pc() - t}"
+                   )
 
 
 if __name__ == "__main__":

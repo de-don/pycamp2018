@@ -16,8 +16,7 @@ def get_urls(count):
 def save_cat_and_print_hash(url):
     r = requests.get(url)
     if r.status_code != 200:
-        print('error')
-        return
+        return None
 
     path_img = path + url.split("/")[-1]
     with open(path_img, 'wb') as f:
@@ -29,4 +28,5 @@ def save_cat_and_print_hash(url):
         m = hashlib.md5()
         m.update(f.read())
 
-    return m.hexdigest()
+    hash = m.hexdigest()
+    return hash
