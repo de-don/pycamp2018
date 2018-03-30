@@ -4,7 +4,7 @@ from Crypto.Util.number import getPrime
 
 from task_11.thread import MyThread, get_threads_results
 
-bits = 2 ** 10
+bits = 2 ** 11
 count = 40
 max_count_threads = 20
 
