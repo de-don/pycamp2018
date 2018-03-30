@@ -28,7 +28,6 @@ if __name__ == "__main__":
             threads = [CatThread(autostart=True, url=url) for url in urls_part]
             results_iter = get_threads_results(threads)
             results.extend(list(results_iter))
-            print(k)
 
         count_unique = set(results)
         print(
