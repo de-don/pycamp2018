@@ -1,6 +1,5 @@
 import hashlib
 import re
-from random import randint
 
 import requests
 
@@ -14,7 +13,7 @@ def get_urls(count):
     return cat_urls
 
 
-def save_cat_and_print_hash(name, url):
+def save_cat_and_print_hash(url):
     r = requests.get(url)
     if r.status_code != 200:
         print('error')
@@ -29,4 +28,5 @@ def save_cat_and_print_hash(name, url):
     with open(path_img, 'rb') as f:
         m = hashlib.md5()
         m.update(f.read())
-        print(name, m.hexdigest())
+
+    return m.hexdigest()
