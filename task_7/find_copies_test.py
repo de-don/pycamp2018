@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from pathlib import Path
 from .find_copies import (
     find_copies,
@@ -95,7 +95,14 @@ class FuncsTest(TestCase):
             '====================\n'
         )
 
-    def test_delete_files(self):
+    def test_delete_files_1(self):
         files = [Mock(name=f'file_{i}') for i in range(5)]
         delete_files(files)
         self.assertTrue(all(file._accessor.unlink.called for file in files))
+
+    def test_delete_files_2(self):
+        files = range(5)
+
+        with patch('pathlib.Path.unlink') as mock_unlink:
+            delete_files(files)
+            self.assertEqual(mock_unlink.call_count, 5)
