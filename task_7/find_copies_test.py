@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import Mock
 from pathlib import Path
 from .find_copies import (
     find_copies,
@@ -6,8 +7,8 @@ from .find_copies import (
     process_str_of_nums,
     sha1_copies,
     recursion_finder,
-    TEXTS
-)
+    TEXTS,
+    delete_files)
 from click.testing import CliRunner
 
 
@@ -93,3 +94,8 @@ class FuncsTest(TestCase):
             TEXTS['delete_aborted'] + '\n'
             '====================\n'
         )
+
+    def test_delete_files(self):
+        files = [Mock(name=f'file_{i}') for i in range(5)]
+        delete_files(files)
+        self.assertTrue(all(file._accessor.unlink.called for file in files))
